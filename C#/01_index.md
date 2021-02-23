@@ -156,7 +156,10 @@ namespace CS07
     string strValue1 = "12234"; // 数字なので数値とは全く別物
 ```
 
-## 参照
+# 値型と参照型
+
+- 値型：数値など
+- 参照型：配列、クラス
 
 ```c#
 namespace CS09
@@ -248,6 +251,74 @@ namespace CS09
 
             MessageBox.Show("a= " + a);
         }
+    }
+}
+```
+
+# データ型と変換
+
+- キャスト：数値同士や似た者同士を変換する
+- Parse：変換できなかったときは例外が発生
+- TryParse：戻り値が boolean
+- Convert：Parse とほぼ同じだが、null が入ってきたときは 0 を返す
+
+```c#
+namespace CS10
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        // キャスト
+        private void button1_Click(object sender, EventArgs e)
+        {
+            double d1 = 1.9d;
+            // 明示的にキャストする
+            int aaa = (int)d1;
+        } // このあたりでブレークポイントを付けてみる
+
+
+        // Parse
+        private void button2_Click(object sender, EventArgs e)
+        {
+            // string value = "あああ"; // 例外が発生する
+            // string value = "10.1"; // 例外が発生する
+            // string value = null; // 例外が発生する
+
+            string value = "10";
+            // intに変換
+            int intValeu = int.Parse(value);
+        }
+
+
+        // TryParse
+        private void button3_Click(object sender, EventArgs e)
+        {
+            string value = "10";
+            // intに変換した後の変数を用意する必要がある
+            int intValue;
+            // valueが正しく変換されたら true そうでなければ false が返ってくる
+            bool result = int.TryParse(value,out intValue); // outというのはresultに出力されるという意味
+        }
+
+
+        // Convert
+        private void button4_Click(object sender, EventArgs e)
+        {
+            // string value = "10.4"; // 例外が発生
+
+            // Parseではnullは例外になるが、Convertでは0が返ってくる
+            string value = null;
+
+            // string value = "10";
+
+            // 何ビットに変換するか指定できる
+            int intValeu = Convert.ToInt32(value);
+        }
+
     }
 }
 ```
