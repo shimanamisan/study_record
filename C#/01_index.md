@@ -144,13 +144,11 @@ namespace CS07
     if (boolValue)
     {
         // trueの時
-
     }
 
     if (!boolValue)
     {
         // falseの時
-
     }
 
     // String型
@@ -161,4 +159,5 @@ namespace CS07
 ## 参照
 
 ```c#
+
 ```
