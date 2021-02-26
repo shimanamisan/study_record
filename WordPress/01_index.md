@@ -4,7 +4,7 @@
 
 # テーマの保存場所
 
-![](/img/wordpress/L03_1.jpg)
+- `wp-content` → `themes` の中にテンプレートを入れていく
 
 # WordPress に必要なファイル
 
@@ -17,7 +17,7 @@
 - 画像名：screenshot
 - 画像形式：png、jpg、gif
 - 画像サイズ：300×225（2 倍のサイズで高解像度の端末にもきれいに表示させることができる）
-- テーマのフォルダの中に入れたら、名前を**screenshot**に変更する
+- テーマのフォルダの中に入れたら、名前を`screenshot`に変更する
 
 # style.css に決まったコメントを入れる
 
@@ -32,27 +32,40 @@ Description: テーマの説明文
 */
 ```
 
-### その他にもコメントとして以下の内容が記述できる
+## その他にもコメントとして以下の内容が記述できる
 
-![](/img/wordpress/L03_4.jpg)
+```css
+/*
+Theme Name: テーマの名前
+Theme URL: テーマのホームページアドレス
+Author: テーマの作成者
+Author URL: テーマ作成者のホームページアドレス
+Description: テーマの説明文
+Tag: テーマのタグ
+*/
+```
 
 # テンプレート作成手順
 
-![](/img/wordpress/L03_5.jpg)
+1. テンプレート用の html ファイルを作成する
+2. `index.php`と`style.css`を作成する
+3. `index.php`から`header.php` と `footer.php`、`sidebar.php`を作成する
+4. 固定ページ`page.php`を作成する
+5. 記事一覧ページ`blog.php`を作成する
+6. 記事ページ`single.php`を作成する
+7. テーマのための関数`function.php`を作成する
 
 - 固定ページ：WordPress の機能で管理画面から好きに自分でページが作れる
 
-### ウィジェット
+# ウィジェット
 
 - 画像やリンクなどを 1 つのパーツとして管理し、ドラッグ&ドロップで並べ替えが出来る
 
-### カスタムフィールド
+# カスタムフィールド
 
+- 管理画面の固定ページ若しくは投稿ページの、編集画面の下の方に入力フォームが表示される
 - 予め決められた箇所に、テキストや画像などを挿入できる
-
-# Lesson3 まとめ
-
-![](/img/wordpress/L03_6.jpg)
+- 並びは変えられない
 
 # その他の共通パーツの読み込み方
 
@@ -133,7 +146,7 @@ Description: テーマの説明文
 ```html
     <!-- footer -->
     <footer>
-      Copyright <a href="http://webukatu.com/">ウェブカツ!!サンプルホームページ</a>. All Rights
+      Copyright <a href="#">サンプルホームページ</a>. All Rights
       Reserved.
     </footer>
   </body>
@@ -159,7 +172,7 @@ Description: テーマの説明文
 ```html
 <!-- メニュー -->
 <header class="site-width">
-  <h1><a href="index.html">WEBUKATU</a></h1>
+  <h1><a href="index.html">サンプルページ</a></h1>
   <nav id="top-nav">
     <ul>
       <li><a href="index.html">HOME</a></li>
@@ -253,7 +266,7 @@ add_action('save_post', 'save_custom_postdata');
 
 ## サイドバーウィジェット
 
-- 管理画面のカテゴリー ▶ 自作したウィジェットエリア ▶ 追加
+- 管理画面のカテゴリー → 自作したウィジェットエリア → 追加
 
 # テンプレートとしての最終調整
 
@@ -261,10 +274,10 @@ add_action('save_post', 'save_custom_postdata');
 
 ## ツールバーを表示しないようにする
 
-- ユーザー ▶ あなたのプロフィール ▶ サイトを見る時にツールバーを表示する ▶ オフ
+- ユーザー → あなたのプロフィール → サイトを見る時にツールバーを表示する → オフ
 
 ## 投稿記事や画像、メニューと言った情報をファイルにエクスポート
 
-- ツール ▶ エクスポート ▶ 全てのコンテンツ ▶ チェックしてダウンロード
+- ツール → エクスポート → 全てのコンテンツ → チェックしてダウンロード
 - 適当に作ったフォルダへそのファイルを入れる
 - 作成したテーマを**zip ファイル**にして同じフォルダに入れる
