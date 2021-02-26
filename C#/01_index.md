@@ -359,3 +359,113 @@ namespace CS11
 ```
 
 # 動的配列
+
+- 前回の配列よりも、こっちのほうが便利なので基本的にこの書き方を使うことが多い
+
+```c#
+namespace CS12
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        // 動的配列
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            // System.Collections.Generic; が読み込まれていると使える
+            // Tには値の型を入れる
+            List<int> valuse = new List<int>();
+            // 値を追加
+            valuse.Add(10);
+            valuse.Add(20);
+            valuse.Add(50);
+            valuse.Add(51);
+            valuse.Add(52);
+
+            // 配列内の要素数を取得
+            MessageBox.Show(valuse.Count.ToString());
+
+            // インデックス指定で値を取得
+            MessageBox.Show(valuse[2].ToString());
+
+            // 値を指定して削除
+            valuse.Remove(20);
+
+            // インデックスを指定して削除
+            valuse.RemoveAt(3);
+
+            // 全部削除
+            // valuse.Clear();
+        }
+    }
+}
+```
+
+# 演算子
+
+- C#は静的型付け言語なので、型まで比較する`===`の演算子が無い
+
+# 条件分岐
+
+```c#
+namespace CS14
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            // テキストボックスに入力された値をint型に変換して変数に格納
+            int value = Convert.ToInt32(textBox1.Text);
+
+            if (value == 10)
+            {
+                MessageBox.Show("10です");
+            }
+
+            else if (value == 20)
+            {
+                MessageBox.Show("20です");
+            }
+
+            else
+            {
+                MessageBox.Show("どれでもない");
+            }
+
+            switch (value)
+            {
+                case 10:
+                    MessageBox.Show("10です");
+                    break;
+
+                case 20:
+                    MessageBox.Show("20です");
+                    break;
+
+                default:
+                    MessageBox.Show("どれでもない");
+                    break;
+            }
+        }
+    }
+}
+```
