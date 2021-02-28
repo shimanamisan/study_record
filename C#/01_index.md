@@ -469,3 +469,76 @@ namespace CS14
     }
 }
 ```
+
+# whilw 文
+
+- 条件が一致する間は処理を繰り返す
+
+```c#
+namespace CS15
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            int i = 0;
+
+            while( i < 10)
+            {
+                i++;
+
+                if (i == 3)
+                {
+                    // ループを飛ばす
+                    continue;
+                }
+
+                if (i == 5)
+                {
+                    // ループの処理を抜ける
+                    // 5でbreakで入るのでメッセージボックスには4までが表示される
+                    break;
+                }
+
+                MessageBox.Show(i.ToString());
+            }
+        }
+    }
+}
+
+```
+
+# do - while 文
+
+- 必ず一回は処理されるループ文
+
+```c#
+namespace CS16
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            int i = 100;
+
+            do
+            {
+                i++;
+
+            } while (i < 100);
+
+            MessageBox.Show(i.ToString()); // 101
+        }
+    }
+}
+```
