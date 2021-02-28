@@ -135,8 +135,7 @@ Tag: テーマのタグ
   </head>
 
   <!-- bodyタグの中にWordPressで使うクラス属性をつける -->
-  <body <?php body_class(); ?>
-    >
+  <body <?php body_class(); ?>>
   </body>
 </html>
 ```
