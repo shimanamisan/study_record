@@ -189,7 +189,7 @@ namespace CS09
             StartPosition = FormStartPosition.CenterScreen;
         }
 
-        //　追加したボタン
+        // 追加したボタン
         private void button1_Click(object sender, EventArgs e)
         {
             int a = 10;
@@ -296,7 +296,6 @@ namespace CS10
             int aaa = (int)d1;
         } // このあたりでブレークポイントを付けてみる
 
-
         // Parse
         private void button2_Click(object sender, EventArgs e)
         {
@@ -309,7 +308,6 @@ namespace CS10
             int intValeu = int.Parse(value);
         }
 
-
         // TryParse
         private void button3_Click(object sender, EventArgs e)
         {
@@ -319,7 +317,6 @@ namespace CS10
             // valueが正しく変換されたら true そうでなければ false が返ってくる
             bool result = int.TryParse(value,out intValue); // outというのはresultに出力されるという意味
         }
-
 
         // Convert
         private void button4_Click(object sender, EventArgs e)
@@ -363,7 +360,6 @@ namespace CS11
             values[1] = 20;
             values[2] = 30;
             // values[3] = 40; // 3つまで入る配列なので、4つ目は入れれない
-
 
             // 省略した書き方
             int[] values2 = { 1, 2, 4 }; // int[3]の配列の中に 1,2,4 の数値が入っている
@@ -434,17 +430,6 @@ namespace CS14
         public Form1()
         {
             InitializeComponent();
-        }
-
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
-
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -557,4 +542,30 @@ namespace CS16
         }
     }
 }
+```
+
+# ループのネスト
+
+```c#
+for(int row = 1; row < 11; row++){
+    for(int col = 1 ; col < 11; col++ ){
+        Console.WriteLine($"The cell is ({row}, {col})");
+    }
+}
+```
+
+# リストを作成する
+
+- List <T>クラス
+- JavaScript のオブジェクトのようなもの？
+- 型付けされたオブジェクトのリストを生成
+
+```c#
+var names = new List<string> { "<name>", "Ana", "Felipe" };
+```
+
+- テンプレートリテラルは以下のように記述
+
+```c#
+Console.WriteLine($"The cell is ({row}, {col})");
 ```
