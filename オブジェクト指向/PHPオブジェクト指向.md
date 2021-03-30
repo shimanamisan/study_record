@@ -39,6 +39,36 @@
 - `$this->name`で、自分自身のプロパティにアクセス出来る
 - `$this->name = $name`のようにプロパティに値を代入することが出来る
 
+# コンストラクタ
+
+- インスタンスを生成する際に何か初期化処理を行いたい場合に使用する
+- プロパティに値をセットしたい、メソッドを実行しておきたいなど
+- コンストラクター関数に引数を設定すると、インスタンス生成時にプロパティに初期値をセットすることができる
+- ただし、インスタンス生成時に引数に対応する値を渡してやらないとエラーになる
+
+```php
+// 例
+
+class MyClass
+{
+    protected $name;
+    protected $age;
+    protected $body;
+
+    public __constructor($name, $age, $body)
+    {
+        $this->name = $name;
+        $this->age = $age;
+        $this->body = $body;
+    }
+}
+
+// インスタンス生成
+$instance = new MyClass('bob', 19, 'MukiMuki');
+// コンストラクタに引数を設定している場合はエラーになる
+$instance = new MyClass();
+```
+
 # アクセス権とカプセル化
 
 ## public って何？
@@ -392,6 +422,4 @@ class Login
 
     }
 }
-
-
 ```
