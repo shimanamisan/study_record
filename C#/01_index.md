@@ -23,6 +23,18 @@
 - これが動くことで、VB や C#が同じ動きをする
 - セキュリティー関係の事やメモリ開放を制御するガベージコレクションなどが裏で動いている
 
+## なぜ CLR が必要なのか
+
+- .NET Framework 対応のプログラムは全て MSIL 形式の中間コードに変換（コンパイル）される
+- MSIL のコードは、マシン語に極めて近いコード
+- MSIL のコードが実行できる環境を用意すれば、Visual C# で作成したプログラムも、 Visual Basic で作成したプログラムも同じように実行できる
+
+## CLR は MSIL のコードを実行するためのソフトウェア群
+
+- MSIL のコードは極めてマシン語に近いと言ってもマシン語ではないので、変換してやる必要がある
+- MSIL のコードをマシン語にコンパイルするための JIT コンパイラーを始め、メモリ管理やセキュリティに関する処理を行うソフトウェアが含まれている
+- CLR は.NET Framework 対応のプログラムを実行するために用意された環境
+
 # ソリューション
 
 - アプリケーションの製品単位にソリューションを作る
@@ -79,6 +91,7 @@ namespace CS06
 # 変数と定数
 
 - 値を覚えていくメモリ領域
+- `var`を使用すると暗黙的な型変換が行われる（コンパイラーが既定の型を指定する）
 
 ```C#
 namespace CS07
@@ -106,6 +119,9 @@ namespace CS07
         private void button1_Click(object sender, EventArgs e)
         {
             _count += 1;
+
+            // varを指定すると暗黙的な型変換が行われる
+            var num = 1;
         }
     }
 }
@@ -173,7 +189,7 @@ namespace CS09
             StartPosition = FormStartPosition.CenterScreen;
         }
 
-        //　追加したボタン
+        // 追加したボタン
         private void button1_Click(object sender, EventArgs e)
         {
             int a = 10;
@@ -280,7 +296,6 @@ namespace CS10
             int aaa = (int)d1;
         } // このあたりでブレークポイントを付けてみる
 
-
         // Parse
         private void button2_Click(object sender, EventArgs e)
         {
@@ -293,7 +308,6 @@ namespace CS10
             int intValeu = int.Parse(value);
         }
 
-
         // TryParse
         private void button3_Click(object sender, EventArgs e)
         {
@@ -303,7 +317,6 @@ namespace CS10
             // valueが正しく変換されたら true そうでなければ false が返ってくる
             bool result = int.TryParse(value,out intValue); // outというのはresultに出力されるという意味
         }
-
 
         // Convert
         private void button4_Click(object sender, EventArgs e)
@@ -347,7 +360,6 @@ namespace CS11
             values[1] = 20;
             values[2] = 30;
             // values[3] = 40; // 3つまで入る配列なので、4つ目は入れれない
-
 
             // 省略した書き方
             int[] values2 = { 1, 2, 4 }; // int[3]の配列の中に 1,2,4 の数値が入っている
@@ -418,17 +430,6 @@ namespace CS14
         public Form1()
         {
             InitializeComponent();
-        }
-
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
-
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -543,10 +544,60 @@ namespace CS16
 }
 ```
 
-# for 文
-
-- 初期設定の値に型を指定するところが、動的型付け言語と違うところ
-
 # foreach 文
 
--
+- `Control`は、コントロールの基本クラスで、コントロールを操作するためのプロパティやメソッドが定義されている
+
+```c#
+// オブジェクトに対しての繰返し処理
+foreach(オブジェクトの型 変数名 in 対象のオブジェクト)
+{
+    //
+}
+
+// Controlsコレクションに対しての繰返し処理
+foreach(Control 変数名 in 対象のフォーム名.Controls)
+{
+    //
+}
+```
+
+# ループのネスト
+
+```c#
+for(int row = 1; row < 11; row++){
+    for(int col = 1 ; col < 11; col++ ){
+        Console.WriteLine($"The cell is ({row}, {col})");
+    }
+}
+```
+
+# 配列
+
+- 配列は初期化時に要素の数を指定する
+- 配列は固定長のデータを扱うのに適している
+- **初期化後は要素の数を増やしたり減らしたりすることはでき無い**
+- 配列を初期化するには以下のように記述する
+
+```c#
+// 要素の数を指定
+string[] array = new string[3];
+
+// 初期化時に値も設定可能
+string[] array = {"1", "2", "3"};
+```
+
+# リストを作成する
+
+- List <T>クラス
+- 配列と違い初期化する際に要素の数を指定せず、初期化した後に数を変更することが可能
+
+```c#
+var names = new List<string> { "<name>", "Ana", "Felipe" };
+```
+
+- テンプレートリテラルは以下のように記述
+
+```c#
+Console.WriteLine($"The cell is ({row}, {col})");
+```
