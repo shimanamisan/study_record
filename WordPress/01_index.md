@@ -26,8 +26,8 @@
 
 ```css
 /*
-Theme Name: しまなみさんブログ
-Author: しまなみさん
+Theme Name: サンプルブログ
+Author: サンプルユーザー
 Description: テーマの説明文
 */
 ```
@@ -73,17 +73,18 @@ Tag: テーマのタグ
 
 1. `header.php`：head タグまでの共通のもの（header タグの中身では無いので注意！）
 2. `content-menu.php`：ロゴやメニューバーの共通部分
-3. `sidebar.php`
-4. `footer.php`
+3. `sidebar.php`：サイドバー
+4. `footer.php`：フッター
 
 ## 注意！
 
 - WordPress では共通パーツは、`header.php`、`footer.php`、`sidebar.php`の 3 つしか切り出せない
 - その他のパーツを切り出したい（header タグの中に記述されたナビゲーションバーなど）場合は以下のようなルールが有る
-
-![](/img/wordpress/L04_1.jpg)
+-
 
 ## header.php を切り出す
+
+- ここは HTML の情報が書かれたヘッダー部のことで、メニューなどを表示させるヘッダーでは無い
 
 ```html
 <!DOCTYPE html>
@@ -114,6 +115,11 @@ Tag: テーマのタグ
 ## header.php を編集する
 
 - WordPress 特有のメソッドなどを記述していく
+- `wp_title();`：タイトルを表示させる WordPress で用意されたメソッド、管理画面から変更出来るようにする
+- `wp_head();`：WordPress 管理画面などから設定した内容が反映される
+- `body_class();`：body タグの中に WordPress で使うクラス属性が入る
+- `get_stylesheet_uri();`：このテーマで使われている style.css を探して、そのパスを自動的に埋め込んでくれる
+- `bloginfo(' charset ');`：bloginfo()メソッドは WordPress で設定されている色々な情報を引き出すもの（ここでは文字コードを管理画面から指定できるようにしている）
 
 ```html
 <!DOCTYPE html>
@@ -121,7 +127,7 @@ Tag: テーマのタグ
   <head>
     <!-- bloginfo()メソッドはWordPressで設定されている色々な情報を引き出すもの（ここでは文字コードを指定できるようにしている） -->
     <meta charset="<?php bloginfo(' charset '); ?>" />
-    <!-- タイトルを表示させるWordPressで用意されたメソッド -->
+    <!-- タイトルを表示させるWordPressで用意されたメソッド、管理画面から変更出来るようにする -->
     <title><?php wp_title(); ?></title>
     <!-- このテーマで使われているstyle.cssを探して、そのパスを自動的に埋め込んでくれる -->
     <link href="<?php echo get_stylesheet_uri(); ?>" rel="stylesheet" />
@@ -134,13 +140,16 @@ Tag: テーマのタグ
     <?php wp_head(); ?>
   </head>
 
-  <!-- bodyタグの中にWordPressで使うクラス属性をつける -->
-  <body <?php body_class(); ?>>
+  <!-- bodyタグの中にWordPressで使うクラス属性が入る -->
+  <body <?php body_class(); ?>
+    >
   </body>
 </html>
 ```
 
 ## footer.php を切り出す
+
+- 今回は特に特別な指定なし
 
 ```html
     <!-- footer -->
@@ -155,6 +164,7 @@ Tag: テーマのタグ
 ## footer.php を読み込む
 
 - `index.php`の切り取った箇所に記述する
+- `get_footer();`：切り出したフッターを読み込むためのメソッド
 
 ```php
 <?php get_footer(); ?>
@@ -167,6 +177,9 @@ Tag: テーマのタグ
 - `content-menu.php`を作成する
 - `スラッグ名-テンプレート名`という命名ルールに従いファイルを作成する
 - テンプレート名は無くても良い
+- 読み込みたい箇所でこのメソッドを記述する`<?php get_template_part('スラッグ名', 'テンプレート名');?>`
+- 引数のテンプレート名を省略することも出来る
+- 該当のテンプレート名のファイルが無かった場合、`スラッグ名.php`が読み込まれる
 
 ```html
 <!-- メニュー -->
