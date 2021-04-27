@@ -735,7 +735,7 @@ class A2 : A1 // A1クラスの機能を全て使用できる
 - また、サブクラスで指定できる抽象クラスは 1 つのみで、インターフェースは複数指定することが可能
 
 ```c#
-//
+// 抽象クラス
 public abstract class Database
 {
     public void Save()
@@ -781,5 +781,47 @@ public class Order : Database
     {
         Console.WriteLine("商品マスタの保存");
     }
+}
+```
+
+# 例外
+
+- 異常が発生した時にエラーを通知する
+- 独自のエラー通知を使う際は`Exceptionクラス`を継承する
+- `try, catch, finaly`を使用する
+- エラー発生時にどこかで`catch`しないとアプリケーションが終了する
+
+```c#
+
+// sealedはクラスを継承させないようにするための宣言
+// 基本的にクラスにつけておいたほうが良い
+public sealed class CsvReadException : Exception
+{
+    pbulic CsvReadException(string message) : base(message) // Exceptionのメッセージが入ってくる
+    {
+
+    }
+
+    pbulic CsvReadException(string message) : base("メッセージを固定させる") // メッセージを固定させる場合
+    {
+
+    }
+
+    // インナーエクセプションの記述方法
+    // メッセージは固定させるけど、発生原因は特定したい場合にExceptionを受け取る事ができる
+    pbulic CsvReadException(Exception exception) : base("メッセージを固定させる", exception)
+    {
+
+    }
+}
+
+// エラーをキャッチする処理
+try
+{
+
+}catch(Excepton ex)
+{
+    Console.WriteLine(ex.InnerException.Message)
+    MessageBox.Show(ex.Message);
 }
 ```
