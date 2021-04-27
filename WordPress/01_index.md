@@ -181,8 +181,9 @@ Tag: テーマのタグ
 - 引数のテンプレート名を省略することも出来る
 - 該当のテンプレート名のファイルが無かった場合、`スラッグ名.php`が読み込まれる
 
-```html
-<!-- メニュー -->
+```php
+// content-menu.php
+// メニューの内容を管理画面から編集するのは後ほど実装する
 <header class="site-width">
   <h1><a href="index.html">サンプルページ</a></h1>
   <nav id="top-nav">
@@ -199,7 +200,276 @@ Tag: テーマのタグ
 </header>
 ```
 
+- 作った共通パーツは`get_template_part('content', 'menu')`で読み込んでいく
+
+```php
+// index.php
+<?php  get_header(); ?>
+
+    <!-- ナビメニューの共通パーツを読み込む -->
+    <?php get_template_part('content', 'menu'); ?>
+
+// 中略
+```
+
+## サイドバーを切り出す
+
+- ブログなどでも使用している共通部分を切り出す
+- `sidebar.php`を作成して、共通パーツを切り出す
+- `get_sidebar()`で呼び出す
+- ウィジェットで管理画面から並び替えたり表示させたりすることが出来る
+
+```php
+// single.php
+
+// 中略
+<!-- サイドバー -->
+<?php get_sidebar(); ?>
+
+
+```
+
 # 固定ページの作成方法
+
+- ページには**投稿ページ**と**固定ページ**という物がある
+- 投稿ページは、ブログなどの時系列があり**更新頻度が高いもの**が向いている
+- 固定ページは、固定ページは会社情報などの**更新頻度が低いもの**が向いている
+- 投稿ページは**1 種類のデザインテンプレートページ**を用意して使う
+- 固定ページは複数の種類のテンプレートが用意できるので、ページの内容によって自由にテンプレートを使い分けれられる
+- 固定ページには、**カテゴリ**、**タグ**という情報はつけられない
+
+## 固定ページのテンプレートの使い分け
+
+- トップページ、インフォメーション用のテンプレートや、お問い合わせ用のテンプレートを用意することが出来る
+
+## トップページの固定ページを作成する
+
+- WordPress はトップページを読み込む際に`index.php`よりも`home.php`を優先して読み込むので、トップページの内容は`home.php`に記述する
+- 固定ページとして認識させるために下記のようにコメントを記述する
+
+```php
+<?php
+/*
+ Template Name: Home～トップページ～
+ */
+?>
+```
+
+- メニュー ▶ 固定ページ ▶ 新規作成 ▶ 右サイドメニューのページ属性のテンプレートから、追加したテンプレートが表示される
+
+## インフォメーションページを作る
+
+- `map.php`を作成して同様に固定ページ用のコメントを付ける
+- 管理画面から動的に表示できるように修正していく
+- `the_ID()`：固定ページを作成した際に付与される ID を呼び出している
+- `post_class()`：固定ページごとに管理画面から投稿する際に、クラス属性を追加出来るようにしている
+- `the_content()`：固定ページの本文を出力
+- `get_the_title()`：管理画面からタイトルを出力させる
+
+```php
+<?php
+/*
+Template Name: INFO～インフォメーション～
+*/
+?>
+
+<?php  get_header(); ?>
+
+    <!-- ナビメニューの共通パーツを読み込む -->
+    <?php get_template_part('content', 'menu'); ?>
+
+		<div id="main">
+
+        <!-- blog_list -->
+        <section id="map">
+            <h1 class="title"><?php echo get_the_title(); ?></h1>
+            <div id="content">
+                <!-- カスタムフィールドから表示させる関数 -->
+                <?php echo get_post_meta($post->ID, 'map', true) ?>
+            </div>
+        </section>
+        <section id="shop_info" class="site-width">
+            <?php if(have_posts()) : // WordPressループ開始
+                while(have_posts()) : the_post(); // 繰り返し処理開始?>
+                    <!-- 管理画面から入力した情報を出力するためのhtml部分 -->
+                    <!-- 固定ページのIDをもとにID属性を付けている、固定ページごとにスタイリングを変更することも出来る -->
+                    <div id="post-<?php the_ID(); ?>" <?php post_class(); ?> >
+                        <?php the_content(); ?>
+                    </div>
+                <?php endwhile; // 繰り返し処理終了
+                else: // ここから記事が見つからなかった時の処理
+
+                // 固定ページにはなにか下の情報が含まれているので、else 以下の記述は必要無いが
+                // 念の為追加している
+                ?>
+                    <div class="post">
+                        <h2>記事はありません</h2>
+                        <p>お探しの記事は見つかりませんでした。</p>
+                    </div>
+            <?php endif; // WordPressループ終了 ?>
+        </section>
+
+<?php get_footer(); ?>
+```
+
+## お問い合わせページ
+
+- ほぼインフォメーション用の固定ページと同じ
+- カスタムフィールドから入力する Google Map の入力欄がついていない
+
+```php
+<?php
+/*
+Template Name: CONTACT～お問い合わせ～
+*/
+
+?>
+<?php  get_header(); ?>
+
+  <!-- ナビメニューの共通パーツを読み込む -->
+  <?php get_template_part('content', 'menu'); ?>
+
+  <div id="main">
+    <!-- Contact -->
+    <section id="contact" class="site-width">
+          <h1 class="title"><?php echo get_the_title(); ?></h1>
+              <?php if(have_posts()) : // WordPressループ開始
+                  while(have_posts()) : the_post(); // 繰り返し処理開始?>
+                      <!-- 管理画面から入力した情報を出力するためのhtml部分 -->
+                      <div id="post-<?php the_ID(); ?>" <?php post_class(); ?> >
+                          <?php the_content(); ?>
+                      </div>
+                  <?php endwhile; // 繰り返し処理終了
+                  else: // ここから記事が見つからなかった時の処理
+                  ?>
+                      <div class="post">
+                          <h2>記事はありません</h2>
+                          <p>お探しの記事は見つかりませんでした。</p>
+                      </div>
+              <?php endif; // WordPressループ終了 ?>
+      </section>
+    </div>
+
+<?php get_footer(); ?>
+```
+
+# 記事一覧ページ
+
+- `single.php`と`loop.php`と`category.php`を作成していく
+
+## ファイルの読み込み順序
+
+1. `category-slug.php`：スラッグ名がついたファイルがあった場合最初に読み込まれる
+2. `category-id.php`：上記のファイルが無かった場合は、ID が付与されたファイルが読み込まれる
+3. `category.php`
+4. `archive.php`
+5. `index.php`
+
+- カテゴリーページでページによってデザインを変えたい場合は、`category-slug.php`のファイルを作ってスラッグ名で指定すると良い
+- ID で指定すると投稿したページによって ID が変わってしまうので、`category-id.php`でファイルは作成しない
+- 同じデザインで良い場合は`category.php`で作成する
+
+### タグごとの一覧ページを作成した際の読み込み順序
+
+1. `tag-slug.php`
+2. `tag-id.php`
+3. `tag.php`
+4. `archive.php`
+5. `index.php`
+
+### 日付ごとの一覧ページの読み込み順序
+
+1. `date.php`
+2. `archive.php`
+3. `index.php`
+
+### 検索ボックで検索してそのキーワードが入っている記事の一覧ページの読み込み順序
+
+1. `search.php`：このファイルが有った場合、このページのデザインで表示される
+2. `index.php`
+
+### まとめ
+
+- どのページも同じデザインで良い場合は、`archive.php`や`search.php`を作っておけば良い
+
+## ファイルを切り出していく
+
+- `the_permalink()`：記事へのリンク（パーマリンク）が表示される
+- `the_author_nickname()`：記事を投稿したユーザーを表示する
+- `the_time("Y年m月j日")`：投稿した日付を表示させる
+- `single_cat_title('カテゴリー：')`：カテゴリーを表示させる
+- `the_content()`：記事の内容を表示させる
+- `function_exists("pagination")`：引数に指定した関数があるか確認
+- `pagination($wp_query->max_num_pages)`：
+
+```php
+// ingle.php
+<?php  get_header(); ?>
+
+    <!-- ナビメニューの共通パーツを読み込む -->
+	<?php get_template_part('content', 'menu'); ?>
+		<div id="main">
+
+			<!-- blog_list -->
+			<section id="blog" class="site-width">
+				<h1 class="title">BLOG</h1>
+				<div id="content" class="article">
+
+                    <?php if(have_posts()) : ?>
+                    <!-- 記事のページというのは一覧ページと違って1つしか表示しないのでループ処理は必要ないのでwhile文は削除 -->
+                    <?php the_post();?>
+
+                        <article class="article-item">
+                            <h2 class="article-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
+                            <h3 style="font-size:80%;"><?php the_author_nickname(); ?> <?php the_time("Y年m月j日"); ?> <?php single_cat_title('カテゴリー：') ?></h3>
+                            <!-- <img src="" class="article-img"> -->
+
+                            <p class="article-body">
+                                <?php the_content(); ?>
+                            </p>
+                        </article>
+                </div>
+
+            <!-- サイドバー -->
+            <?php get_sidebar(); ?>
+
+            <!-- コメント -->
+            <?php comments_template(); ?>
+            <?php else : ?>
+                    <h2 class="title">記事が見つかりませんでした</h2>
+                    <p>検索で見つかるかもしれません</p><br/>
+            <?php get_search_form(); ?>
+            <?php endif; ?>
+
+            <div class="pagenation">
+                <ul>
+                    <li class="prev"><?php previous_post_link('%link',  'PREV'); ?></li>
+                    <li class="next"><?php next_post_link('%link',  'NEXT'); ?></a></li>
+                </ul>
+            </div>
+        </section>
+
+    </div>
+<?php get_footer(); ?>
+```
+
+```php
+// loop.php
+<!-- 記事一覧のループ -->
+<?php if(have_posts()): ?>
+	<?php while(have_posts()): the_post();?>
+		<article class="article-item">
+				<h2 class="article-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
+				<h3 style="font-size:80%;"><?php the_author_nickname(); ?> <?php the_time("Y年m月j日"); ?> <?php single_cat_title('カテゴリー：') ?></h3>
+				<p class="article-body">
+					<!-- 画像も含めた記事が表示される -->
+					<?php the_content(); ?>
+				</p>
+		</article>
+	<?php endwhile; // end while posts ?>
+
+<?php endif; // end if posts ?>
+```
 
 # WordPress ファイルの読み込み順序
 
