@@ -725,3 +725,61 @@ class A2 : A1 // A1クラスの機能を全て使用できる
 - サブクラスでスーパークラスのメソッドを書き換える
 - スーパークラスで`virtualキーワード`を記述する必要がある
   - 書き換えて良いですよ～というサイン
+
+# インターフェース
+
+# 抽象クラス
+
+- `abstract`というキーワードを使用する
+- インターフェースとの違いは、ロジックは共通にしておいて一部分だけ**虫食い状態**にして、そこはサブクラスに委ねる書き方ができる
+- また、サブクラスで指定できる抽象クラスは 1 つのみで、インターフェースは複数指定することが可能
+
+```c#
+//
+public abstract class Database
+{
+    public void Save()
+    {
+        // 前処理
+        Before();
+
+        // ここだけサブクラスで処理を定義しなければならない。
+        Execute();
+
+        // 後処理
+        After();
+
+    }
+
+    // 定義だけ出来る。中身はかけない
+    protected abstract Execute();
+
+    private void Before()
+    {
+
+    }
+
+    private void After()
+    {
+
+    }
+}
+
+// サブクラス
+public class Product : Database
+{
+    protected override void Execute()
+    {
+        Console.WriteLine("商品マスタの保存");
+    }
+}
+
+// サブクラス
+public class Order : Database
+{
+    protected override void Execute()
+    {
+        Console.WriteLine("商品マスタの保存");
+    }
+}
+```
