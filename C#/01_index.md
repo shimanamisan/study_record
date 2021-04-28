@@ -58,32 +58,28 @@
 - `Ctrl + .`で読み込むクラスを予測できる
 
 ```C#
-using System.Windows.Forms;
 
-namespace CS06
+public partial class Form1 : Form
 {
-    public partial class Form1 : Form
+    private int _value = 0;
+
+    public Form1()
     {
-        private int _value = 0;
+        InitializeComponent();
+    }
 
-        public Form1()
-        {
-            InitializeComponent();
-        }
+    private int GetValue()
+    {
+        _value++;
 
-        private int GetValue()
-        {
-            _value++;
+        // メソッドで型を指定したら必ず値を返さないといけない
+        return 1;
+    }
 
-            // メソッドで型を指定したら必ず値を返さないといけない
-            return 1;
-        }
-
-        // メッセージを表示させるだけなど、値を返さない場合はvoidを指定する
-        private void SetValue()
-        {
-            MessageBox.Show("Hello World");
-        }
+    // メッセージを表示させるだけなど、値を返さない場合はvoidを指定する
+    private void SetValue()
+    {
+        MessageBox.Show("Hello World");
     }
 }
 ```
@@ -94,82 +90,76 @@ namespace CS06
 - `var`を使用すると暗黙的な型変換が行われる（コンパイラーが既定の型を指定する）
 
 ```C#
-namespace CS07
+// ボタンをクリックしたときに値を記憶させる
+private int _count = 0;
+
+// 定数
+private const int AAA = 10;
+
+public Form1()
 {
-    public partial class Form1 : Form
-    {
-        // ボタンをクリックしたときに値を記憶させる
-        private int _count = 0;
+    InitializeComponent();
+}
 
-        // 定数
-        private const int AAA = 10;
+// ボタン2のクリックイベント
+private void button2_Click(object sender, EventArgs e)
+{
+    MessageBox.Show(_count.ToString());
+}
 
-        public Form1()
-        {
-            InitializeComponent();
-        }
+// ボタンクリックのイベント
+private void button1_Click(object sender, EventArgs e)
+{
+    _count += 1;
 
-        // ボタン2のクリックイベント
-        private void button2_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show(_count.ToString());
-        }
-
-        // ボタンクリックのイベント
-        private void button1_Click(object sender, EventArgs e)
-        {
-            _count += 1;
-
-            // varを指定すると暗黙的な型変換が行われる
-            var num = 1;
-        }
-    }
+    // varを指定すると暗黙的な型変換が行われる
+    var num = 1;
 }
 ```
 
 # 値の型
 
 ```C#
-    // 数値の型
-    byte byteValue = 255; // 255まで値が入る
-    // byte byteValue2 = 256; // 256はエラーになる
+// 数値の型
+byte byteValue = 255; // 255まで値が入る
+// byte byteValue2 = 256; // 256はエラーになる
 
-    //
-    short shortValue = 10;
-    short shortMax = short.MaxValue; // 最大値の32767が代入される
+//
+short shortValue = 10;
+short shortMax = short.MaxValue; // 最大値の32767が代入される
 
-    // ushort ushortValue = -1; // マイナスを含めない
+// ushort ushortValue = -1; // マイナスを含めない
 
-    int intValue = -10; // マイナスを含めることができる
-    int intMaxValue = int.MaxValue; // 最大値が代入される
+int intValue = -10; // マイナスを含めることができる
+int intMaxValue = int.MaxValue; // 最大値が代入される
 
-    uint uintValue = -10; // マイナスは使用できない
+uint uintValue = -10; // マイナスは使用できない
 
-    // 同様にマイナスを含めることができる型と、そうでない型がある
-    long longValue = -10;
-    ulong ulongValue = 10;
+// 同様にマイナスを含めることができる型と、そうでない型がある
+long longValue = -10;
+ulong ulongValue = 10;
 
-    // 浮動小数点型
-    float floatValue = 1.2334455f; // 明示的に使用する場合は末尾にfを記述しないと、double型と認識されてエラーになる
-    double doubleValue = 1.23455d; // 末尾に明示的にdとしても良い
-    decimal decimalValue = 1.2345m; // decimalも末尾にmをつける必要がある
+// 浮動小数点型
+float floatValue = 1.2334455f; // 明示的に使用する場合は末尾にfを記述しないと、double型と認識されてエラーになる
+double doubleValue = 1.23455d; // 末尾に明示的にdとしても良い
+decimal decimalValue = 1.2345m; // decimalも末尾にmをつける必要がある
 
-    // Boolean
-    bool boolValue = false; // true false しか入らない
+// Boolean
+bool boolValue = false; // true false しか入らない
 
-    if (boolValue)
-    {
-        // trueの時
-    }
+if (boolValue)
+{
+    // trueの時
+}
 
-    if (!boolValue)
-    {
-        // falseの時
-    }
+if (!boolValue)
+{
+    // falseの時
+}
 
-    // String型
-    string strValue = "sfasdfasあああ";
-    string strValue1 = "12234"; // 数字なので数値とは全く別物
+// String型
+string strValue = "sfasdfasあああ";
+string strValue1 = "12234"; // 数字なので数値とは全く別物
 ```
 
 # 値型と参照型
@@ -178,96 +168,83 @@ namespace CS07
 - 参照型：配列、クラス
 
 ```c#
-namespace CS09
+// 追加したボタン
+private void button1_Click(object sender, EventArgs e)
 {
-    public partial class Form1 : Form
-    {
-        public Form1()
-        {
-            InitializeComponent();
+    int a = 10;
+    int b = 20;
 
-            StartPosition = FormStartPosition.CenterScreen;
-        }
+    MessageBox.Show("a= " + a); // 10
+    MessageBox.Show("b= " + b); // 20
 
-        // 追加したボタン
-        private void button1_Click(object sender, EventArgs e)
-        {
-            int a = 10;
-            int b = 20;
+    a = b;
 
-            MessageBox.Show("a= " + a); // 10
-            MessageBox.Show("b= " + b); // 20
+    MessageBox.Show("a= " + a); // 20
+    MessageBox.Show("b= " + b); // 20
 
-            a = b;
+    b = 30;
 
-            MessageBox.Show("a= " + a); // 20
-            MessageBox.Show("b= " + b); // 20
+    MessageBox.Show("a= " + a); // 20
+    MessageBox.Show("b= " + b); // 30
 
-            b = 30;
+}
 
-            MessageBox.Show("a= " + a); // 20
-            MessageBox.Show("b= " + b); // 30
+// 参照型のボタン
+private void button2_Click(object sender, EventArgs e)
+{
+    Other a = new Other();
+    Other b = new Other();
 
-        }
+    a.Value = 10;
+    b.Value = 20;
 
-        // 参照型のボタン
-        private void button2_Click(object sender, EventArgs e)
-        {
-            Other a = new Other();
-            Other b = new Other();
+    MessageBox.Show("a= " + a.Value); // 10
+    MessageBox.Show("b= " + b.Value); // 20
 
-            a.Value = 10;
-            b.Value = 20;
+    a = b; // インスタンスbのアドレスの参照先に変更されている
 
-            MessageBox.Show("a= " + a.Value); // 10
-            MessageBox.Show("b= " + b.Value); // 20
+    MessageBox.Show("a= " + a.Value); // 20
+    MessageBox.Show("b= " + b.Value); // 20
 
-            a = b; // インスタンスbのアドレスの参照先に変更されている
+    b.Value = 30;
+    MessageBox.Show("a= " + a.Value); // 変数aに格納されているインスタンスはbの参照先に書き換わっているので、インスタンスbと同じ値が出力される
+    MessageBox.Show("b= " + b.Value); // 30
 
-            MessageBox.Show("a= " + a.Value); // 20
-            MessageBox.Show("b= " + b.Value); // 20
+}
 
-            b.Value = 30;
-            MessageBox.Show("a= " + a.Value); // 変数aに格納されているインスタンスはbの参照先に書き換わっているので、インスタンスbと同じ値が出力される
-            MessageBox.Show("b= " + b.Value); // 30
+private void OtherMethod(Other other)
+{
+    other.Value = 55;
+}
 
-        }
+private void ValueMethod(int other)
+{
+    other = 66;
+}
 
-        private void OtherMethod(Other other)
-        {
-            other.Value = 55;
-        }
+public class Other
+{
+    public int Value;
+}
 
-        private void ValueMethod(int other)
-        {
-            other = 66;
-        }
+private void button3_Click(object sender, EventArgs e)
+{
+    Other a = new Other();
+    a.Value = 10;
+    // 関数内でインスタンス内の値が変更されている
+    OtherMethod(a);
 
-        public class Other
-        {
-            public int Value;
-        }
+    MessageBox.Show("a= " + a.Value);
+}
 
-        private void button3_Click(object sender, EventArgs e)
-        {
-            Other a = new Other();
-            a.Value = 10;
-            // 関数内でインスタンス内の値が変更されている
-            OtherMethod(a);
+private void button4_Click(object sender, EventArgs e)
+{
+    int a = 10;
 
-            MessageBox.Show("a= " + a.Value);
-        }
+    // 値がコピーされているだけなので、大元の変数には影響がない
+    ValueMethod(a);
 
-        private void button4_Click(object sender, EventArgs e)
-        {
-            int a = 10;
-
-            // 値がコピーされているだけなので、大元の変数には影響がない
-            ValueMethod(a);
-
-            MessageBox.Show("a= " + a);
-        }
-    }
+    MessageBox.Show("a= " + a);
 }
 ```
 
@@ -279,94 +256,71 @@ namespace CS09
 - Convert：Parse とほぼ同じだが、null が入ってきたときは 0 を返す
 
 ```c#
-namespace CS10
+// キャスト
+private void button1_Click(object sender, EventArgs e)
 {
-    public partial class Form1 : Form
-    {
-        public Form1()
-        {
-            InitializeComponent();
-        }
+    double d1 = 1.9d;
+    // 明示的にキャストする
+    int aaa = (int)d1;
+} // このあたりでブレークポイントを付けてみる
 
-        // キャスト
-        private void button1_Click(object sender, EventArgs e)
-        {
-            double d1 = 1.9d;
-            // 明示的にキャストする
-            int aaa = (int)d1;
-        } // このあたりでブレークポイントを付けてみる
+// Parse
+private void button2_Click(object sender, EventArgs e)
+{
+    // string value = "あああ"; // 例外が発生する
+    // string value = "10.1"; // 例外が発生する
+    // string value = null; // 例外が発生する
 
-        // Parse
-        private void button2_Click(object sender, EventArgs e)
-        {
-            // string value = "あああ"; // 例外が発生する
-            // string value = "10.1"; // 例外が発生する
-            // string value = null; // 例外が発生する
+    string value = "10";
+    // intに変換
+    int intValeu = int.Parse(value);
+}
 
-            string value = "10";
-            // intに変換
-            int intValeu = int.Parse(value);
-        }
+// TryParse
+private void button3_Click(object sender, EventArgs e)
+{
+    string value = "10";
+    // intに変換した後の変数を用意する必要がある
+    int intValue;
+    // valueが正しく変換されたら true そうでなければ false が返ってくる
+    bool result = int.TryParse(value,out intValue); // outというのはresultに出力されるという意味
+}
 
-        // TryParse
-        private void button3_Click(object sender, EventArgs e)
-        {
-            string value = "10";
-            // intに変換した後の変数を用意する必要がある
-            int intValue;
-            // valueが正しく変換されたら true そうでなければ false が返ってくる
-            bool result = int.TryParse(value,out intValue); // outというのはresultに出力されるという意味
-        }
+// Convert
+private void button4_Click(object sender, EventArgs e)
+{
+    // string value = "10.4"; // 例外が発生
 
-        // Convert
-        private void button4_Click(object sender, EventArgs e)
-        {
-            // string value = "10.4"; // 例外が発生
+    // Parseではnullは例外になるが、Convertでは0が返ってくる
+    string value = null;
 
-            // Parseではnullは例外になるが、Convertでは0が返ってくる
-            string value = null;
+    // string value = "10";
 
-            // string value = "10";
-
-            // 何ビットに変換するか指定できる
-            int intValeu = Convert.ToInt32(value);
-        }
-
-    }
+    // 何ビットに変換するか指定できる
+    int intValeu = Convert.ToInt32(value);
 }
 ```
 
 # 配列
 
 ```c#
-namespace CS11
+// 配列
+private void button1_Click(object sender, EventArgs e)
 {
-    public partial class Form1 : Form
-    {
-        public Form1()
-        {
-            InitializeComponent();
-        }
+    int aaa = 1;
 
-        // 配列
-        private void button1_Click(object sender, EventArgs e)
-        {
-            int aaa = 1;
+    // 新しい配列を生成（型や許容できる値の個数も指定する）
+    int[] values = new int[3];
 
-            // 新しい配列を生成（型や許容できる値の個数も指定する）
-            int[] values = new int[3];
+    values[0] = 10;
+    values[1] = 20;
+    values[2] = 30;
+    // values[3] = 40; // 3つまで入る配列なので、4つ目は入れれない
 
-            values[0] = 10;
-            values[1] = 20;
-            values[2] = 30;
-            // values[3] = 40; // 3つまで入る配列なので、4つ目は入れれない
-
-            // 省略した書き方
-            int[] values2 = { 1, 2, 4 }; // int[3]の配列の中に 1,2,4 の数値が入っている
-            // 配列の中の個数を取得する
-            MessageBox.Show(values2.Length.ToString());
-        }
-    }
+    // 省略した書き方
+    int[] values2 = { 1, 2, 4 }; // int[3]の配列の中に 1,2,4 の数値が入っている
+    // 配列の中の個数を取得する
+    MessageBox.Show(values2.Length.ToString());
 }
 ```
 
@@ -375,44 +329,33 @@ namespace CS11
 - 前回の配列よりも、こっちのほうが便利なので基本的にこの書き方を使うことが多い
 
 ```c#
-namespace CS12
+// 動的配列
+private void Form1_Load(object sender, EventArgs e)
 {
-    public partial class Form1 : Form
-    {
-        public Form1()
-        {
-            InitializeComponent();
-        }
+    // System.Collections.Generic; が読み込まれていると使える
+    // Tには値の型を入れる
+    List<int> valuse = new List<int>();
+    // 値を追加
+    valuse.Add(10);
+    valuse.Add(20);
+    valuse.Add(50);
+    valuse.Add(51);
+    valuse.Add(52);
 
-        // 動的配列
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            // System.Collections.Generic; が読み込まれていると使える
-            // Tには値の型を入れる
-            List<int> valuse = new List<int>();
-            // 値を追加
-            valuse.Add(10);
-            valuse.Add(20);
-            valuse.Add(50);
-            valuse.Add(51);
-            valuse.Add(52);
+    // 配列内の要素数を取得
+    MessageBox.Show(valuse.Count.ToString());
 
-            // 配列内の要素数を取得
-            MessageBox.Show(valuse.Count.ToString());
+    // インデックス指定で値を取得
+    MessageBox.Show(valuse[2].ToString());
 
-            // インデックス指定で値を取得
-            MessageBox.Show(valuse[2].ToString());
+    // 値を指定して削除
+    valuse.Remove(20);
 
-            // 値を指定して削除
-            valuse.Remove(20);
+    // インデックスを指定して削除
+    valuse.RemoveAt(3);
 
-            // インデックスを指定して削除
-            valuse.RemoveAt(3);
-
-            // 全部削除
-            // valuse.Clear();
-        }
-    }
+    // 全部削除
+    // valuse.Clear();
 }
 ```
 
@@ -423,50 +366,39 @@ namespace CS12
 # 条件分岐
 
 ```c#
-namespace CS14
+private void button1_Click(object sender, EventArgs e)
 {
-    public partial class Form1 : Form
+    // テキストボックスに入力された値をint型に変換して変数に格納
+    int value = Convert.ToInt32(textBox1.Text);
+
+    if (value == 10)
     {
-        public Form1()
-        {
-            InitializeComponent();
-        }
+        MessageBox.Show("10です");
+    }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            // テキストボックスに入力された値をint型に変換して変数に格納
-            int value = Convert.ToInt32(textBox1.Text);
+    else if (value == 20)
+    {
+        MessageBox.Show("20です");
+    }
 
-            if (value == 10)
-            {
-                MessageBox.Show("10です");
-            }
+    else
+    {
+        MessageBox.Show("どれでもない");
+    }
 
-            else if (value == 20)
-            {
-                MessageBox.Show("20です");
-            }
+    switch (value)
+    {
+        case 10:
+            MessageBox.Show("10です");
+            break;
 
-            else
-            {
-                MessageBox.Show("どれでもない");
-            }
+        case 20:
+            MessageBox.Show("20です");
+            break;
 
-            switch (value)
-            {
-                case 10:
-                    MessageBox.Show("10です");
-                    break;
-
-                case 20:
-                    MessageBox.Show("20です");
-                    break;
-
-                default:
-                    MessageBox.Show("どれでもない");
-                    break;
-            }
-        }
+        default:
+            MessageBox.Show("どれでもない");
+            break;
     }
 }
 ```
@@ -476,42 +408,30 @@ namespace CS14
 - 条件が一致する間は処理を繰り返す
 
 ```c#
-namespace CS15
+private void Form1_Load(object sender, EventArgs e)
 {
-    public partial class Form1 : Form
+    int i = 0;
+
+    while( i < 10)
     {
-        public Form1()
+        i++;
+
+        if (i == 3)
         {
-            InitializeComponent();
+            // ループを飛ばす
+            continue;
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        if (i == 5)
         {
-            int i = 0;
-
-            while( i < 10)
-            {
-                i++;
-
-                if (i == 3)
-                {
-                    // ループを飛ばす
-                    continue;
-                }
-
-                if (i == 5)
-                {
-                    // ループの処理を抜ける
-                    // 5でbreakで入るのでメッセージボックスには4までが表示される
-                    break;
-                }
-
-                MessageBox.Show(i.ToString());
-            }
+            // ループの処理を抜ける
+            // 5でbreakで入るのでメッセージボックスには4までが表示される
+            break;
         }
+
+        MessageBox.Show(i.ToString());
     }
 }
-
 ```
 
 # do - while 文
@@ -519,28 +439,17 @@ namespace CS15
 - 必ず一回は処理されるループ文
 
 ```c#
-namespace CS16
+private void Form1_Load(object sender, EventArgs e)
 {
-    public partial class Form1 : Form
+    int i = 100;
+
+    do
     {
-        public Form1()
-        {
-            InitializeComponent();
-        }
+        i++;
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            int i = 100;
+    } while (i < 100);
 
-            do
-            {
-                i++;
-
-            } while (i < 100);
-
-            MessageBox.Show(i.ToString()); // 101
-        }
-    }
+    MessageBox.Show(i.ToString()); // 101
 }
 ```
 
@@ -548,7 +457,7 @@ namespace CS16
 
 - `Control`は、コントロールの基本クラスで、コントロールを操作するためのプロパティやメソッドが定義されている
 - ループ中に**値を変更したり消したりするとエラーになる**
-- 値を変更したい場合は`for文`を使用する
+- **値を変更したい場合は`for文`を使用する**
 - `for文`で値を消す場合は**for 文の逆回し**を行うようにする
 - なぜなら、値を消した際に配列の中のインデックスも詰まるので、思うように処理が行われない場合がある
 - 該当の要素を末尾から消すことによって、要素の順番に不整合が起こらないので意図した処理を実装する事ができる
@@ -566,6 +475,7 @@ foreach(Control 変数名 in 対象のフォーム名.Controls)
     //
 }
 
+// for文の逆回し
 for(int i = items.Count - 1; i >= 0; i-- )
 {
     if(items[i] == 10){
@@ -599,13 +509,46 @@ string[] array = new string[3];
 string[] array = {"1", "2", "3"};
 ```
 
-# リストを作成する
+# 動的配列（リスト）
 
-- List <T>クラス
 - 配列と違い初期化する際に要素の数を指定せず、初期化した後に数を変更することが可能
+- 配列よりも、リスト（`List <T>`）というものをよく使う
+- 書き方：`List<データ型> 配列名 = new List<データ型>();`
 
 ```c#
+// 基本形
+var names = new List<string>();
+
+// 初期化時に値を設定している書き方
 var names = new List<string> { "<name>", "Ana", "Felipe" };
+```
+
+- 値を追加する際は`Addメソッド`を使用する
+- 要素の値がわかっている場合の削除は`Removeメソッド`を使用する
+- `Index`しかわからない場合は`RemoveAtメソッド`を使用する
+- すべて削除する場合は`Clearメソッド`を使用する
+- 要素数をカウントするには`Countメソッド`を使用する
+
+```c#
+var numList = new List<int>();
+
+// 数値型の値を追加、他の型だとコンパイルエラー
+numList.Add(1);
+numList.Add(2);
+
+// 値の削除方法
+// 値を指定
+numList.Rmove(1);
+// インデックスを指定
+numList.RemoveAt(0);
+// すべて削除
+numList.Clear();
+
+numList.Add(1);
+numList.Add(2);
+
+// 要素にアクセスする場合
+numList[0].Tostring();
 ```
 
 # テンプレートリテラルの使い方
@@ -622,6 +565,31 @@ Console.WriteLine($"The cell is ({row}, {col})");
 - メソッド
 - プロパティ
 - `C#`ではクラス内で値を保持する役割は同じだが、**プロパティ**と**フィールド**機能は若干違いがある
+
+## クラス
+
+- データと処理のひと固まりのもの
+- クラスという枠組みを作成し、実際のデータは**インスタンスという実態を生成した時に作り出される**という考え方
+
+## アクセス修飾子
+
+- どこからでもアクセス出来るようにした場合は、コードを修正した際の影響範囲が広いの使わないで実装出来るのであれば使わない
+- `public`：どこからでもアクセスできる
+- `internal`：異なるプロジェクトからはアクセス出来ないようにする
+- `protected`：自分のクラスとサブクラスのみ参照できる
+- `protected niternal`：
+- `private`：自分のクラスからしか参照できない。一番他のクラスからの影響がない
+- `sealed`：継承を禁止するキーワード
+  - 継承する予定がないクラスには付けておいたほうが間違いが少ない
+
+## フィールド
+
+- フィールドはクラス等で宣言される任意の型の変数のことを言う
+- 基本的には`private`で作成し、他のクラスからアクセスできないようにして**カプセル化**という状態にする
+
+## カプセル化
+
+- データの部分を自分のクラスからしか参照できないようにすることで、保守性を高めコードの見通しの良さを高めることが出来る機能
 
 ## プロパティ
 
@@ -668,10 +636,26 @@ public int Count { get; private set; }
 
 ## コンストラクタ
 
+- クラスを生成する時に呼び出す特殊なメソッドのこと
 - コンストラクタは 2 つ書くことができる
 - コンストラクタからコンストラクタを呼ぶことができる
 - それにより、渡した引数の数で初期値を与えたりすることができる
+- 同じ引数の構成のものは重複して定義することは出来ない
 - 一番引数の数が多いコンストラクタにロジックを集めることで、コンストラクタが複数になっても重複しないコードを書くことができる
+
+## コンストラクトイニシャライザ
+
+- とあるコンストラクタから別のコンストラクタを呼び出せる機能のことを言う
+
+```c#
+// 書き方
+public Customer(string Name) :this("--", lastName)
+{
+    // コンストラクタイニシャライザによりここに重複コードを書く必要がなくなる
+    FirstName = "--";
+    LastName =
+}
+```
 
 # Dispose とは
 
@@ -681,7 +665,45 @@ public int Count { get; private set; }
 ## リソース開放とは
 
 - アプリケーションが動作中に確保していくメモリを開放すること
-  ー C#で int と宣言して変数を作れば 4 バイトのメモリが確保されるが、そのままにしていればメモリが食いつぶされていしまう
+- C#で int と宣言して変数を作れば 4 バイトのメモリが確保されるが、そのままにしていればメモリが食いつぶされていしまう
+- `try catch finally`を使うことで例外が発生しても、`Dispose忘れ`を防ぐことが出来る
+- `using`を使用すれば確実にリソースの開放をすることが出来る
+
+```c#
+// Dipose呼び出し例
+SqlConnection connection = new SqlConnection();
+
+// 何らかの処理
+
+// メモリ解放
+connection.Dispose();
+
+
+// 例外が発生しても、finallyの処理は必ず通る
+try
+{
+    // Dipose呼び出し例
+    SqlConnection connection = new SqlConnection();
+}catch{
+
+    // 例外処理
+
+}finally{
+    connection.Dispose();
+}
+
+
+// using使用例
+using(SqlConnection connection = new SqlConnection())
+{
+
+}
+```
+
+- `using`の使用が推奨されているが、`using`が使用できるのは**インスタンスの生成と破棄が一つのメソッド内で行われる場合のみ**
+- クラス内でフィールドとして宣言している場合の変数に対して`using`を記述することは出来ない
+
+# static
 
 # 継承
 
@@ -717,6 +739,29 @@ class A2 : A1 // A1クラスの機能を全て使用できる
     {
         base.ProtectedValue = 3;
     }
+}
+```
+
+# オーバーロード
+
+- 同じ名前のメソッドを複数作ること
+
+## オーバーロードの条件
+
+- 引数の数が異なる
+- 引数の型が異なる
+- 引数の並びが異なる
+
+```c#
+// 例
+
+internal void Save(int id,string name)
+{
+
+}
+internal void Save(int id)
+{
+
 }
 ```
 
