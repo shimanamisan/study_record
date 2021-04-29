@@ -805,12 +805,172 @@ function save_custom_postdata($post_id)
 ## 作成した固定ページをトップページに設定する
 
 - 外観 → カスタマイズ → ホームページ設定 → ホームページの表示配下のラジオボックスを固定ページにチェック → ホームページ欄から作成した固定ページ「HOME」を指定
+- 試しに ABOUT の入力欄に値を入れて更新すると、入力した情報が反映されているのが分かる
+- `<br/>`タグなどの HTML タグもそのまま入力することで、改行も反映される
 
-## カスタムウィジェット
+## インフォメーションページに MAP を埋め込む
+
+- Google Map から地図を検索し、共有 → 埋め込みタブ → HTML をコピー → iframe タグに直接`width: 100%;`や`height: 500px;`などと記述する
+
+## カスタムウィジェットを作成する
 
 - ウィジェットの良いところは、**並び替えができる**ことと、ウィジェット本体を作ってそのエリアに色々なウィジェットを登録することで、**ウィジェット本体の方で持っている HTML のテンプレートを生成できる**こと
+- ウィジェットの良い点は並び替えが出来る
+- いろいろな HTML のテンプレートを用意できるので、好きなテンプレートでコンテンツを作成できる
+- ウィジェット本体を作成するクラス内では 4 つのメソッドを作成する
+  - 初期化メソッド（コンストラクター `my_widgets_item1`）：クラス名と同じにする
+  - 入力フォームを作成する`fromメソッド`
+  - 入力情報を保存する`updateメソッド`
+  - html テンプレートを作成する`widgetメソッド`
+- [add_action 関数ドキュメント](http://wpdocs.osdn.jp/%E9%96%A2%E6%95%B0%E3%83%AA%E3%83%95%E3%82%A1%E3%83%AC%E3%83%B3%E3%82%B9/add_action)
+- `get_field_id関数`
+- `get_field_name関数`
+- `apply_filters関数`
+
+```php
+// functions.php
+
+/*===============================
+カスタムウィジェット
+=================================*/
+// ウィジェットエリアを作成する関数がどれなのかを登録する
+add_action( 'widgets_init', 'my_widgets_area' );
+// ウィジェット自体の作成する関数がどれなのかを登録する
+// add_action( 'widgets_init', create_function( '', 'return register_widget("my_widgets_item1")' )); PHP5.2までの書き方
+
+// PHP5.3以上の書き方（）
+add_action( 'widgets_init', function()
+{
+    register_widget( 'my_widgets_item1' );
+});
+
+// ウィジェット自体を作成する
+class my_widgets_item1 extends WP_Widget // ウィジェットクラスを継承
+{
+    // 初期化（管理画面で表示するウィジェットの名前を設定する）
+    function my_widgets_item1()
+    {
+        parent::WP_Widget( false, $name = 'メリットウィジェット' );
+    }
+
+    // ウィジェットの入力項目を作成する処理
+    // WordPressから自動的に入力された情報が入ってくるのでそれを受け取る変数をform関数の引数に作る
+    function form($instance)
+    {
+        // 入力された文字をサニタイズして変数へ格納
+        $title = esc_attr($instance['title']);
+        $body = esc_attr($instance['body']);
+
+      ?>
+        <!-- ここからHTMLタグ -->
+          <p>
+              <label for="<?php echo $this->get_field_id('title'); ?>">
+                  <?php echo 'タイトル'; ?>
+              </label>
+              <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>">
+          </p>
+          <p>
+              <!-- for属性の名前をinputタグのname属性と同じにすることで、ラベルをクリックした時に入力フォームにフォーカスが当たる -->
+              <label for="<?php echo $this->get_field_id('body'); ?>">
+                  <?php echo '内容'; ?>
+              </label>
+              <textarea class="widefat"
+                name="<?php echo $this->get_field_name('body'); ?>"
+                id="<?php echo $this->get_field_id('body'); ?>"
+                cols="20"
+                rows="16">
+                <?php echo $body; ?>
+              </textarea>
+          </p>
+        <!-- ここまで -->
+      <?php
+    }
+
+    // ウィジェットに入力された情報を保存する処理（必ずupdateという関数名にする）
+    // 引数には新しく入力された情報と、DBの情報が入ってくるので2つ変数が必要
+    function update($new_instance, $old_instance)
+    {
+        // データベースからの情報は配列の形式で渡ってくる
+        $instance = $old_instance;
+        // サニタイズしている
+        $instance['title'] = strip_tags($new_instance['title']); // phpやhtmlのタグを取り除く
+        // サニタイズしている
+        $instance['body'] = trim($new_instance['body']); // 先頭と最後尾の前後の空白を取り除く
+
+        return $instance;
+    }
+
+    // 管理画面から入力されたウィジェットを画面に表示する処理
+    function widget($args, $instance)
+    {
+        // 配列を変数に展開
+        extract($args);
+
+        // ウィジェットに入力された情報を取得(WordPressのフィルターフックという機能を使っている)
+        // 第一引数で指定した文字列の関数を呼び出して、取得した情報をその関数で何かしらの処理を行う
+        // 今回は関数を用意していないので、直接変数に$instance['title']を格納しても良い
+        $title = apply_filters( 'widget_title', $instance['title'] );
+        $body = apply_filters( 'widget_body', $instance['body'] );
+
+        // ウィジェットから入力された情報がある場合はhtmlを表示する
+        if($title)
+        {
+            ?>
+                <!-- ここからHTMLタグ -->
+                <section class="panel">
+                    <h2><?php echo $title; ?></h2>
+                    <p>
+                        <?php echo $body; ?>
+                    </p>
+                </section>
+                <!-- ここまで -->
+            <?php
+        }
+    }
+}
+```
+
+## ウィジェットエリアを表示させる
+
+- メリットエリアを書き換える
+- `dynamic_sidebar(my_widgets_item1で指定した名前)`
+
+```php
+<!-- MERIT -->
+<section id="merit" class="site-width">
+  <h1 class="title">MERIT</h1>
+  <?php dynamic_sidebar( 'メリットエリア' ); ?>
+</section>
+```
 
 ## サイドバーウィジェット
+
+- サイドバーは WordPress の方で用意されているので、表示出来るようにだけすれば良い
+
+```php
+<div id="sidebar" class="sidebar-widget">
+	<?php dynamic_sidebar( 'my_sidebar' ); ?>
+</div>
+```
+
+- `my_widgets_area()`の中にサイドバー用のウィジェットエリアを作成する
+- `dynamic_sidebar`に渡す引数は`register_sidebar`で作成した引数での、`name`でも`id`でもどちらでも良い s
+
+```php
+ // サイドバーエリアのフォーム
+  register_sidebar(array(
+      // 管理画面で表示したいエリアの名前を指定
+      'name' => 'カスタムサイドバー',
+      // 管理画面にウィジェットエリアが表示される時に、そこに付くID属性名
+      'id' => 'my_sidebar',
+      // この2つは管理画面のウィジェットエリアを表示するHTMLを、何で囲むかを指定する
+      'before_widget' => '<div>',
+      'after_widget' => '</div>',
+      // ウィジェット自体を登録する時に
+      'before_title' => '<h2>',
+      'after_title' => '</h2>'
+  ));
+```
 
 - 管理画面のカテゴリー → 自作したウィジェットエリア → 追加
 
