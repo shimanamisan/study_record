@@ -356,8 +356,9 @@ Template Name: CONTACT～お問い合わせ～
 # 記事一覧ページ
 
 - `single.php`と`loop.php`と`category.php`を作成していく
+- 記事一覧ページのファイル名というのは決まっていて、`category.php`というファイルを作る
 
-## ファイルの読み込み順序
+## WordPress ファイルの読み込み順序
 
 1. `category-slug.php`：スラッグ名がついたファイルがあった場合最初に読み込まれる
 2. `category-id.php`：上記のファイルが無かった場合は、ID が付与されたファイルが読み込まれる
@@ -390,6 +391,11 @@ Template Name: CONTACT～お問い合わせ～
 
 ### まとめ
 
+- 記事一覧はループをしてデータを取得し表示している
+- ループ部分だけを共通パーツとして`loop.php`とする場合が多い
+- カテゴリーやタグ、日付、検索結果用の一覧ページを作れる
+- カテゴリーやタグは更に、そのカテゴリーごとに一覧ページを作れる
+- それぞれ作りたい一覧ページによってファイル名を決める
 - どのページも同じデザインで良い場合は、`archive.php`や`search.php`を作っておけば良い
 
 ## ファイルを切り出していく
@@ -401,57 +407,6 @@ Template Name: CONTACT～お問い合わせ～
 - `the_content()`：記事の内容を表示させる
 - `function_exists("pagination")`：引数に指定した関数があるか確認
 - `pagination($wp_query->max_num_pages)`：
-
-```php
-// ingle.php
-<?php  get_header(); ?>
-
-    <!-- ナビメニューの共通パーツを読み込む -->
-	<?php get_template_part('content', 'menu'); ?>
-		<div id="main">
-
-			<!-- blog_list -->
-			<section id="blog" class="site-width">
-				<h1 class="title">BLOG</h1>
-				<div id="content" class="article">
-
-                    <?php if(have_posts()) : ?>
-                    <!-- 記事のページというのは一覧ページと違って1つしか表示しないのでループ処理は必要ないのでwhile文は削除 -->
-                    <?php the_post();?>
-
-                        <article class="article-item">
-                            <h2 class="article-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
-                            <h3 style="font-size:80%;"><?php the_author_nickname(); ?> <?php the_time("Y年m月j日"); ?> <?php single_cat_title('カテゴリー：') ?></h3>
-                            <!-- <img src="" class="article-img"> -->
-
-                            <p class="article-body">
-                                <?php the_content(); ?>
-                            </p>
-                        </article>
-                </div>
-
-            <!-- サイドバー -->
-            <?php get_sidebar(); ?>
-
-            <!-- コメント -->
-            <?php comments_template(); ?>
-            <?php else : ?>
-                    <h2 class="title">記事が見つかりませんでした</h2>
-                    <p>検索で見つかるかもしれません</p><br/>
-            <?php get_search_form(); ?>
-            <?php endif; ?>
-
-            <div class="pagenation">
-                <ul>
-                    <li class="prev"><?php previous_post_link('%link',  'PREV'); ?></li>
-                    <li class="next"><?php next_post_link('%link',  'NEXT'); ?></a></li>
-                </ul>
-            </div>
-        </section>
-
-    </div>
-<?php get_footer(); ?>
-```
 
 ```php
 // loop.php
@@ -471,30 +426,181 @@ Template Name: CONTACT～お問い合わせ～
 <?php endif; // end if posts ?>
 ```
 
-# WordPress ファイルの読み込み順序
+# 記事ページ
 
-# 記事詳細画面
+- 記事詳細ページは`single.php`ファイルが読み込まれる
+- コードの書き方は記事一覧ページの内容とほぼ同じ
+- 個別ページでは前の記事と次の記事へのページング昨日を付けることができる
+- カテゴリーやタグの種類ごとに個別記事ページを作ることも出来るが、その場合は`functions.php`に何行か書く必要がある
+
+## コメントの入力
+
+- 記事の詳細ページでコメント入力欄を表示させるには`comments_template()`という関数を使う
+
+## 記事がなかった場合の処理（これは通常ありえないが念の為）
+
+- 記事がなかった場合の処理で、`get_search_form()`という関数を記述して、`search.php`ファイルを読み込むようにしている
+
+## 記事を動的に表示させる為の処理
+
+− 記事のページは一覧ページと違って 1 つのページしか表示しないので、`while(have_posts()) : the_post();`の部分は必要無いが残していても動作に問題はない
+
+## 記事ページコード
+
+```php
+// single.php
+
+<?php  get_header(); ?>
+
+    <!-- ナビメニューの共通パーツを読み込む -->
+	<?php get_template_part('content', 'menu'); ?>
+		<div id="main">
+
+			<!-- blog_list -->
+			<section id="blog" class="site-width">
+				<h1 class="title">BLOG</h1>
+				<div id="content" class="article">
+
+                    <?php if(have_posts()) : ?>
+                    <!-- 記事のページというのは一覧ページと違って1つしか表示しないのでループ処理は必要ないのでwhile文は今回は削る -->
+                    <!-- 残していても動作に問題はない -->
+                    <?php // while(have_posts()) : the_post();?>
+
+                    <?php the_post();?>
+
+                    <article class="article-item">
+                        <h2 class="article-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
+                        <h3 style="font-size:80%;"><?php the_author_nickname(); ?> <?php the_time("Y年m月j日"); ?> <?php single_cat_title('カテゴリー：') ?></h3>
+                        <!-- <img src="" class="article-img"> -->
+
+                        <p class="article-body">
+                            <?php the_content(); ?>
+                        </p>
+                    </article>
+
+                    <!-- 今回は削除 -->
+                    <?php // endwhile; ?>
+                </div>
+            <!-- サイドバー -->
+            <?php get_sidebar(); ?>
+
+            <!-- コメント -->
+            <?php comments_template(); ?>
+
+            <!-- 記事がない場合の処理 -->
+            <?php else : ?>
+                    <h2 class="title">記事が見つかりませんでした</h2>
+                    <p>検索で見つかるかもしれません</p><br/>
+            <?php get_search_form(); ?>
+            <?php endif; ?>
+
+            <div class="pagenation">
+                <ul>
+                    <li class="prev"><?php previous_post_link('%link',  'PREV'); ?></li>
+                    <li class="next"><?php next_post_link('%link',  'NEXT'); ?></a></li>
+                </ul>
+            </div>
+        </section>
+    </div>
+<?php get_footer(); ?>
+```
 
 # functions.php ファイルを作成してカスタマイズしていく
 
-## ページネーション
+- `functions.php`では最後の**php の閉じタグは閉じては駄目！**
+
+## ロゴ画像を動的に表示させる
+
+- `content-menu.php`のロゴの a タグの href 属性の部分に`<php echo home_url(); >`と記述する
+- `home_url()`でサイトの URL が取得できるのでそれを`echo`で表示させている
+- img タグの src 属性の部分で`<?php header_image(); ?>`とすることで、管理画面から追加した画像が表示れる
+- alt 属性は`<?php bloginfo('name') ?>`とすることで**サイトのタイトル**を表示させるようにしている
+
+## カスタムヘッダーを使うための処理
+
+- これを記述することで、外観メニューにヘッダーという項目が追加されている
+- デフォルトの画像は用意していないので何も表示されていない
+- [add_theme_support 関数のドキュメント](https://wpdocs.osdn.jp/%E9%96%A2%E6%95%B0%E3%83%AA%E3%83%95%E3%82%A1%E3%83%AC%E3%83%B3%E3%82%B9/add_theme_support)
 
 ```php
-function pagination( $pages='', $range=2 )
+// カスダムヘッダーの画像の設置
+$custom_header_defaults = array(
+    // テンプレートまでのURLが出力され、その中の/images/headers/logo.pngを取ってきている
+    'default-image' => get_bloginfo('template_url').'/images/headers/logo.png',
+    'header-text' => false, // ヘッダー画像上にテキストをかぶせる
+);
+
+// カスタムヘッダーを有効化する
+add_theme_support('custom-header', $custom_header_defaults);
+```
+
+## カスタムメニューを作成する
+
+- カスタムメニューを表示させる箇所に`wp_nav_menu()`という関数を使う
+- 引数には連想配列の形式でパラメーターを渡す
+- [wp_nav_menu 関数のドキュメント](https://wpdocs.osdn.jp/%E9%96%A2%E6%95%B0%E3%83%AA%E3%83%95%E3%82%A1%E3%83%AC%E3%83%B3%E3%82%B9/wp_nav_menu)
+
+```php
+// content-menu.php
+<nav id="top-nav">
+  <?php
+    wp_nav_menu(array(
+      'theme_location' => 'mainmenu',
+      'container' => '', // メニューを囲うタグを設定できる
+      'menu_class' => '', // 生成されるメニューのHTMLにクラスを指定できる
+      'items_wrap' => '<ul>%3$s</ul>' // 生成されるHTMLのフォーマットを指定できる
+    ));
+  ?>
+</nav>
+```
+
+## カスタムメニューを使えるようにする
+
+- カスタムメニューを表示させる位置と、管理画面に表示させる位置の名前を指定する
+- `functions.php`に、`register_nav_menu`という関数を追加する
+- 第一引数にさっき`wp_nav_menu関数`で指定した、`'theme_location' => 'mainmenu'`の value の方（`mainmenu`）を指定する
+- 第二引数は管理画面で表示される名前を指定する
+- [register_nav_menu 関数のドキュメント](https://wpdocs.osdn.jp/%E9%96%A2%E6%95%B0%E3%83%AA%E3%83%95%E3%82%A1%E3%83%AC%E3%83%B3%E3%82%B9/register_nav_menu)
+
+```php
+// functions.php
+
+// カスタムメニューを使用
+register_nav_menu('mainmenu', 'メインメニュー');
+```
+
+## カスタムメニューを実際に表示させる
+
+- 外観 ▶ メニューから任意の名前でメニューを作成することが出来る
+- 固定ページのリンクや自分で URL を指定する**カスタムリンク**なども作成できる
+- 作ったメニューの表示させる箇所を指定するには、**位置の管理**タブから指定する
+- テーマの位置の欄に`register_nav_menu関数`の**第二引数に指定**した、メニューの名前が表示される
+
+## ページネーション
+
+- `functions.php`にページネーションを表示させる関数を記述する
+- 関数の引数には WordPress 側で自動的に計算された全体のページ数を渡している
+
+```php
+// functions.php
+
+function pagination($pages = '', $range = 2) // 第二引数は一覧に何ページ表示させるか指定している
 {
     // 表示するページ数（5ページ表示）
-    $showitems = ($range * 2)+1;
+    $showitems = ($range * 2) + 1;
 
-    // 現在のページの値
+    // 現在のページの値($pagedはWordPress側で用意されているグローバル変数)
     global $paged;
     // デフォルトのページ
     if( empty($paged) ) $paged = 1;
 
+    // 呼び出し側の関数で引数が空だったらこの中の処理が走る
+    if( $pages == '' ){
 
-    if( $pages =='' ){
+        global $wp_query; // WordPress側で用意されているグローバル変数
 
-        global $wp_query;
         $pages = $wp_query->max_num_pages; // 全ページを取得
+
         if(!$pages){ // 全ページ数が空の場合は1とする
             $pages = 1;
         }
@@ -526,21 +632,179 @@ function pagination( $pages='', $range=2 )
 }
 ```
 
+## ブログ一覧ページを表示させる
+
+- 複数ダミー記事を作っておく
+- 外観 ▶ メニュー ▶ カテゴリー ▶ 未分類を追加
+- メニューの名前をブログへ変更
+
 ## カスタムフィールド
 
-- カスタムフィールドを作成するには`add_action関数`を使ってこれから使うカスタムフィールドを登録していく
-- 第一引数：必ず`admin_menu`
-- 第二引数：これから作る関数名を指定。カスタムフィールドの設定情報を定義するための関数
-- データベースに登録する関数も同様に作成する。第一引数は必ず`save_post`とする
+- カスタムフィールドを作るには以下の関数を作成する
+  - 管理画面にフォームを表示する関数
+  - フォームをどこに表示するか設定する関数
+  - フォームに入力された情報をデータベースへ保存する関数
+- カスタムフィールドは投稿ページか固定ページに表示させることが出来る
+- カスタムフィールドに入力した情報は、各投稿・固定ページ毎に情報を保存しておくことが出来る
+- `get_post_meta`：投稿のカスタムフィールドの値をデータベースから取得
+- [get_post_meta 関数のドキュメント](https://wpdocs.osdn.jp/%E9%96%A2%E6%95%B0%E3%83%AA%E3%83%95%E3%82%A1%E3%83%AC%E3%83%B3%E3%82%B9/get_post_meta)
 
 ```php
+// functions.php
+
 // 投稿ページへ表示するカスタムボックスを定義する
+// カスタムフィールドを作成するには add_action関数 を使ってこれから使うカスタムフィールドを登録していく
+// 第一引数：必ず admin_menu とする
+// 第二引数：これから作る関数名を指定。カスタムフィールドの設定情報を定義するための関数
 add_action('admin_menu', 'add_custom_inputbox');
+
 // 追加した表示項目のデータ更新・保存のためのアクションフック
+// データベースに登録する関数も同様に作成する。第一引数は必ず`save_post`とする
 add_action('save_post', 'save_custom_postdata');
+
+/*======================================================
+入力項目がどの投稿タイプのページに表示されるのかの設定
+========================================================*/
+function add_custom_inputbox()
+{
+    // 第一引数：編集画面のhtmlに挿入されるid属性
+    // 第二引数：管理画面に表示されるカスタムフィールド名
+    // 第三引数：メタボックスの中に出力される関数名
+    // 第四引数：管理画面に表示するカスタムフィールドの場所（postなら投稿、pageなら固定ページ）
+    // 第五引数：配置される順序
+    // ABOUT入力欄（home.php）
+    add_meta_box('about_id', 'ABOUT入力欄', 'custom_area', 'page', 'normal');
+    // RECRUIT入力欄（home.php）
+    add_meta_box('recruit_id', 'RECRUIT入力欄', 'custom_area2', 'page', 'normal');
+    // MAP入力欄（map.php）
+    add_meta_box('map_id', 'MAP入力欄', 'custom_area3', 'page', 'normal');
+    // トップバナー入力欄（home.php）
+    add_meta_box('top_img_id', 'トップ画像URL入力欄', 'custom_area4', 'page', 'normal');
+}
+
+// home.phpのABOUTの入力フォームを表示させる為の関数
+function custom_area()
+{
+    // カスタムフィールドを作る関数の中では必ずグローバル関数を使う
+    global $post;
+
+    // 入力フォーム用のHTMLを表示させている
+    // get_post_meta($post_id, $key, $single)
+    // 第一引数：カスタムフィールドを取得したい投稿のID
+    // 第二引数：取得したいキー名の文字列
+    // 第三引数：真偽値を指定。（初期値：false）trueをセットした場合文字列を返す。falseをセットした場合カスタムフィールドの配列を返す
+    echo 'コメント ：<textarea cols="50" rows="5" name="about_msg">'. get_post_meta($post->ID, 'about', true) .'</textarea><br>';
+}
+
+// home.phpのRECRUTの入力フォームを表示させるための関数
+function custom_area2()
+{
+    // カスタムフィールドを作る関数の中では必ずグローバル関数を使う
+    global $post;
+
+    echo '<table>';
+    for($i = 1; $i <= 8; $i++){
+        echo '<tr><td> RECRUIT INFO ：'.$i.'</td><td><input name="recruit_info'.$i.'" value="'.get_post_meta($post->ID, 'recruit_info'.$i, true).'"></td></tr>';
+    }
+    echo '</table>';
+}
+
+// INFOページのMAPフィールドの入力フォームを表示させるための関数
+function custom_area3()
+{
+    // カスタムフィールドを作る関数の中では必ずグローバル関数を使う
+    global $post;
+
+    echo 'コメント ：<textarea cols="50" rows="5" name="map">'. get_post_meta($post->ID, 'map', true) .'</textarea><br>';
+}
+
+// home.phpのトッページ画像を表示させるための関数
+function custom_area4()
+{
+    // カスタムフィールドを作る関数の中では必ずグローバル関数を使う
+    global $post;
+
+    echo 'トップ画像URL ：<input type="text" name="img-top" value="'.get_post_meta($post->ID, 'recruit_info'.$i, true).'"> ';
+}
 ```
 
-- `functions.php`では最後の**php の閉じタグは閉じては駄目！**
+## カスタムフィールドに入力された情報をデータベースに保存する関数を作成する
+
+- `save_custom_postdata($post_id)`：引数にはカスタムフィールドを入力した固定ページの ID が入ってくる
+
+```php
+// functions.php
+
+/*======================================================
+投稿した内容をデータベースに保存する為の処理
+========================================================*/
+function save_custom_postdata($post_id)
+{
+    $about_msg = '';
+    $recruit_data = '';
+    $map_data = '';
+    $img_top = '';
+
+    // カスタムフィールドに入力された情報を取り出す
+    if( isset($_POST['about_msg']) ){
+        $about_msg = $_POST['about_msg'];
+    }
+
+    // カスタムフィールドに入力された情報とデータベースの情報を比較して
+    // 内容が変わっていた場合、保存していた情報を更新する
+    if( $about_msg != get_post_meta($post_id, 'about', true) ){
+
+      // データベースの情報を更新する処理
+      update_post_meta($post_id, 'about', $about_msg);
+    }elseif( $about_msg = ''){
+
+      // 入力された情報が空だった場合に、データベースの情報も空にするための処理
+      // 第三引数にはデータベースの情報を指定する
+      // ある固定ページIDでキーがaboutの情報を持っているものを削除しなさいという記述
+      delete_post_meta($post_id, 'about', get_post_meta($post_id, 'about', true));
+    }
+
+    // RECRUITの入力フォーム
+    // ループ処理で動的に入力フォームを生成
+    for($i = 1; $i <= 8; $i++){
+        if(isset($_POST['recruit_info'.$i])){
+            $recruit_data = $_POST['recruit_info'.$i];
+
+        }
+        if( $recruit_data != get_post_meta($post_id, 'recruit_info'.$i, true) ){
+            update_post_meta($post_id, 'recruit_info'.$i, $recruit_data);
+        }elseif( $recruit_data == ''){
+            delete_post_meta($post_id, 'recruit_info'.$i, get_post_meta($post_id, 'recruit_info'.$i, true));
+        }
+    }
+
+    // MAPの入力フォーム
+    if( isset($_POST['map']) ){
+        $map_data = $_POST['map'];
+    }
+    // 内容が変わっていた場合、保存していた情報を更新する
+    if( $map_data != get_post_meta($post_id, 'map', true) ){
+        update_post_meta($post_id, 'map', $map_data);
+    }elseif( $map_data = ''){
+        delete_post_meta($post_id, 'map', get_post_meta($post_id, 'map', true));
+    }
+
+    // home.phpのトップ画像
+    if( isset($_POST['img-top']) ){
+        $img_top = $_POST['img-top'];
+    }
+    // 内容が変わっていた場合、保存していた情報を更新する
+    if( $img_top != get_post_meta($post_id, 'img-top', true) ){
+        update_post_meta($post_id, 'img-top', $img_top);
+    }elseif( $img_top = ''){
+        delete_post_meta($post_id, 'img-top', get_post_meta($post_id, 'img-top', true));
+    }
+}
+```
+
+## 作成した固定ページをトップページに設定する
+
+- 外観 → カスタマイズ → ホームページ設定 → ホームページの表示配下のラジオボックスを固定ページにチェック → ホームページ欄から作成した固定ページ「HOME」を指定
 
 ## カスタムウィジェット
 
