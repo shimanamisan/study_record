@@ -864,13 +864,14 @@ class my_widgets_item1 extends WP_Widget // ウィジェットクラスを継承
       ?>
         <!-- ここからHTMLタグ -->
           <p>
+            <!-- for属性の名前をinputタグのid属性と同じにすることで、ラベルをクリックした時に入力フォームにフォーカスが当たる -->
               <label for="<?php echo $this->get_field_id('title'); ?>">
                   <?php echo 'タイトル'; ?>
               </label>
               <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>">
           </p>
           <p>
-              <!-- for属性の名前をinputタグのname属性と同じにすることで、ラベルをクリックした時に入力フォームにフォーカスが当たる -->
+
               <label for="<?php echo $this->get_field_id('body'); ?>">
                   <?php echo '内容'; ?>
               </label>
