@@ -3797,3 +3797,201 @@ console.log("%cresult", "color: red; font-weight: bold;", result);
 - オブジェクトのプロパティの値が変更された後、他の箇所に及ぼす影響を自動で検知して何らかの関数を実行する
 - Vue では`effect`と呼ばれる関数が実行される
 - `reactivity.esm-browser.js` では`effect`や`computed`など関数が一つずつ export されているのではなく、オブジェクトとしてまとめて export されている
+
+# その他オブジェクトや関数
+
+# Array オブジェクト
+
+- [オブジェクトが配列かどうかを判定する](https://jsprimer.net/basic/array/#detect-array)
+
+## 配列から要素を検索
+
+## その要素のインデックスが欲しい場合
+
+```js
+const array = ["Java", "JavaScript", "Ruby"];
+const indexOfJS = array.indexOf("JavaScript");
+
+console.log(indexOfJS); // => 1
+console.log(array[indexOfJS]); // => "JavaScript"
+
+// "JS" という要素はないため `-1` が返される
+console.log(array.indexOf("JS")); // => -1
+```
+
+- `indexOf`メソッドは引数と厳密等価演算子`（===）`で一致する要素があったら、**その要素のインデックスを返す**
+- 該当する要素がない場合は`-1`を返す
+- `indexOf`メソッドは**先頭から検索して見つかった要素のインデックスを返す**
+- `indexOf`メソッドと対になるメソッドで、`Array.prototype.lastIndexOf`メソッドがあり、`lastIndexOf`メソッドでは**末尾から検索した結果が得られる**
+- [インデックスを取得](https://jsprimer.net/basic/array/#indexof)
+
+## その要素自体が欲しい場合
+
+- `Array.prototype.find`メソッドを使用
+
+```js
+// colorプロパティを持つオブジェクトの配列
+const colors = [{ color: "red" }, { color: "green" }, { color: "blue" }];
+
+// `color`プロパティが"blue"のオブジェクトを取得
+const blueColor = colors.find((obj) => {
+  return obj.color === "blue";
+});
+console.log(blueColor); // => { "color": "blue" }
+
+// 該当する要素がない場合は`undefined`を返す
+const whiteColor = colors.find((obj) => {
+  return obj.color === "white";
+});
+console.log(whiteColor); // => undefined
+```
+
+## 指定範囲の要素を取得
+
+- `Array.prototype.slice`メソッドを使用
+- 第一引数：**開始位置**
+- 第二引数：**終了位置**
+- 第二引数は省略することができ、省略した場合は配列の末尾が終了位置となる
+
+```js
+const array = ["A", "B", "C", "D", "E"];
+
+// インデックス1から4の範囲を取り出す
+console.log(array.slice(1, 4)); // => ["B", "C", "D"]
+
+// 第二引数を省略した場合は、第一引数から末尾の要素までを取り出す
+console.log(array.slice(1)); // => ["B", "C", "D", "E"]
+
+// マイナスを指定すると後ろからの数えた位置となる
+console.log(array.slice(-1)); // => ["E"]
+
+// 第一引数と第二引数が同じ場合は、空の配列を返す
+console.log(array.slice(1, 1)); // => []
+
+// 第一引数 > 第二引数の場合、常に空配列を返す
+console.log(array.slice(4, 1)); // => []
+```
+
+## その要素が含まれているかという真偽値が欲しい場合
+
+- `ES2016`で追加された`Array.prototype.includes`メソッドを利用する
+
+```js
+const array = ["Java", "JavaScript", "Ruby"];
+
+// `includes`は含まれているなら`true`を返す
+if (array.includes("JavaScript")) {
+  console.log("配列にJavaScriptが含まれている");
+}
+
+// 別の書き方 indexOf で値が含まれていないときに-1を返すことを利用
+// 含まれているかを判定する以外には利用して無いので、コードが読みづらい
+const indexOfJS = array.indexOf("JavaScript");
+if (indexOfJS !== -1) {
+  console.log("配列にJavaScriptが含まれている");
+  // ... いろいろな処理 ...
+  // `indexOfJS`は、含まれているのかの判定以外には利用してない
+}
+```
+
+## [追加と削除](https://jsprimer.net/basic/array/#add-and-delete)
+
+## [配列同士を結合](https://jsprimer.net/basic/array/#concat)
+
+## [配列から要素を削除](https://jsprimer.net/basic/array/#delete-element)
+
+- `Arrary.prototype.splice`メソッドを利用する
+
+```js
+const array = [];
+array.splice(インデックス, 削除する要素数);
+
+// 削除と同時に要素の追加もできる
+array.splice(インデックス, 削除する要素数, ...追加する要素);
+```
+
+## [length プロパティへの代入](https://jsprimer.net/basic/array/#assign-to-length)
+
+- `Arrary.prototype.splice`でも出来るが、配列の要素を全て空にすることが出来る
+
+## [破壊的なメソッドと非破壊的なメソッド](https://jsprimer.net/basic/array/#mutable-immutable)
+
+- 配列をコピーする方法として、`slice`メソッドと、`concat`メソッドで**引数無しで呼び出すとその配列のコピーを返す**
+
+## [配列を反復処理するメソッド](https://jsprimer.net/basic/array/#array-iterate)
+
+### `Array.prototype.forEach`
+
+- 配列の要素を先頭から順番にコールバック関数へ渡し、反復処理を行う
+- コールバック関数は**要素、インデックス、配列**が引数として渡され、配列要素の先頭から順番に反復処理を行う
+- `forEach`メソッドは**返り値を返さない**
+
+```js
+const array = [1, 2, 3];
+array.forEach((currentValue, index, array) => {
+  console.log(currentValue, index, array);
+});
+// コンソールの出力
+// 1, 0, [1, 2, 3]
+// 2, 1, [1, 2, 3]
+// 3, 2, [1, 2, 3]
+```
+
+### `Array.prototype.map`
+
+- `map`メソッドは値を返す
+- 返す値は、それぞれのコールバック関数が返した値を集めた新しい配列
+- 非破壊的なメソッド
+
+```js
+const array = [1, 2, 3];
+
+// 各要素に10を乗算した新しい配列を作成する
+const newArray = array.map((currentValue, index, array) => {
+  return currentValue * 10;
+});
+console.log(newArray); // => [10, 20, 30]
+
+// 元の配列とは異なるインスタンス
+console.log(array !== newArray); // => true
+```
+
+### `Array.prototype.filter`
+
+- コールバック関数が`true`を返した要素だけを集めた新しい配列を返す非破壊的なメソッド
+- コールバック関数には**要素、インデックス、配列**が引数として渡される
+- 配列から不要な要素を取り除いた配列を作成したい場合に利用する
+
+```js
+const array = [1, 2, 3];
+
+// 奇数の値を持つ要素だけを集めた配列を返す
+const newArray = array.filter((currentValue, index, array) => {
+  return currentValue % 2 === 1;
+});
+console.log(newArray); // => [1, 3]
+
+// 元の配列とは異なるインスタンス
+console.log(array !== newArray); // => true
+```
+
+### `Array.prototype.reduce`
+
+- **累積値と配列**を順番にコールバック関数へ渡し、**1 つの累積を返す**
+- 配列から**配列以外の値を含む任意の値を作成したいとき**に利用する
+- コールバック関数には**累積値、要素、インデックス、配列**を引数としてわたす
+- `reduce`メソッドの第二引数には**累積値の初期値となる値を渡せる**
+- `array.reduce((累積値, 要素, インデックスを) => {}, 初期値)`
+
+```js
+const array = [1, 2, 3];
+
+// すべての要素を加算した値を返す
+// accumulatorの初期値は`0`
+const totalValue = array.reduce((accumulator, currentValue, index, array) => {
+  return accumulator + currentValue;
+}, 0);
+
+// 0 + 1 + 2 + 3という式の結果が返り値になる
+console.log(totalValue); // => 6
+```

@@ -1,0 +1,41 @@
+# GitHub Actions を利用した自動デプロイ
+
+- 今回はロリポップを利用したでブロイです
+
+## GitHub Actions って？
+
+- ローカルの開発環境で作成したものをリモートリポジトリへプッシュしたら、自動的に本番環境へリリース出来るようにするためのものです
+- ワークフローを自動化することで、属人性を排除したリリース作業が実現でき、安全に管理できるようになります
+
+## .yml ファイルを作成する
+
+```yml
+name: lolipop # プロジェクト名（この名前がワークフローに出力されます）
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@3.0.0
+        with:
+          ftp-server: ${{ secrets.FTP_HOST }} # サーバのホスト名
+          ftp-username: ${{ secrets.FTP_USERNAME }} # FTPサーバのユーザー名
+          ftp-password: ${{ secrets.FTP_PASSWORD }} # パスワード
+          git-ftp-args: --remote-root ${{ secrets.FTP_REMOTE_ROOT }} # ファイルをデプロイするFTPサーバ上の場所を指定
+          # (例) /task-app.shimanamisan.com
+          local-dir: public # 公開ディレクトリを記述
+
+      - name: Run htaccess.sh
+        shell: bash
+        run: |
+          chmod 777 htaccess.sh
+          ./htaccess.sh
+        working-directory: ./public
+```
