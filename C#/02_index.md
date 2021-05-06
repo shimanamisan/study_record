@@ -259,9 +259,7 @@ private string[] GetValue8(string[] values, Predicate<string> predicate)
 }
 ```
 
-# ラムダ式の書き方
-
-## 機能の振り返り
+# 機能の振り返り
 
 - .NET 1.0
   - デリゲート（delegate）
@@ -277,14 +275,98 @@ private string[] GetValue8(string[] values, Predicate<string> predicate)
   - Async
   - Await
 
+# ラムダ式の書き方
+
 ```c#
 // デリゲートの書き方
-delegate (string s) { return s.Length == 3;}
+delegate(string s) { return s.Length == 3;}
 
 // ラムダ式の書き方
 // 左辺がパラメータ、右辺が「式」or「文」
 s => s.Length == 3;
+```
 
+# 匿名メソッドとの比較
+
+```c#
 // 匿名メソッドの書き方
+delegate(string s)
+{
+  return s.Length == 3;
+}
 
+// ラムダ式の書き方
+// 左辺のパラメータの型は書かなくて良い
+
+// 左辺のパラメータが0個の場合
+() => Console.WriteLine("通知されました");
+
+// 1個の場合
+s => s.Length == 5;
+
+// 複数の場合
+(a, len) => a.Length == 5 + len;
+```
+
+# 処理を書く必要がある場合
+
+```c#
+// 右辺が式のみの場合はreturnを書かなくて良い
+s => s.Length == 5;
+
+// 右辺が式や処理の場合
+(a, len) =>
+{
+  if(a[0] == 'E')
+  {
+    return s.Length > len;
+  }
+
+  return false;
+}
+```
+
+# ラムダ式の実装
+
+```c#
+private void button9_Click(object sender, EventArgs e)
+{
+  var values = new string[] { "A", "BB", "CCC", "DDDD", "EEEEE" };
+
+  // 匿名メソッド
+  var result = GetValue8(
+        values,
+        delegate (string value)
+        {
+            return value.Length == 3;
+        }
+      );
+
+  Console.WriteLine("匿名メソッド：" + string.Join(",", result));
+
+
+  // ラムダ式 パターン1
+  var result2 = GetValue8(
+        values,
+        (value) =>
+        {
+            return value.Length == 3;
+        }
+      );
+
+  // ラムダ式 パターン2
+  var result3 = GetValue8(
+        values,
+        value =>
+        {
+            return value.Length == 3;
+        }
+      );
+
+  // ラムダ式 パターン3
+  var result4 = GetValue8(values, value => value.Length == 3);
+  var result5 = GetValue8(values, value => value.Length > 3);
+
+  Console.WriteLine("ラムダ式：" + string.Join(",", result4));
+}
 ```
