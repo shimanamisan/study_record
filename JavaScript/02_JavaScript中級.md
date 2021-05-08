@@ -3798,6 +3798,10 @@ console.log("%cresult", "color: red; font-weight: bold;", result);
 - Vue では`effect`と呼ばれる関数が実行される
 - `reactivity.esm-browser.js` では`effect`や`computed`など関数が一つずつ export されているのではなく、オブジェクトとしてまとめて export されている
 
+
+
+
+
 # その他オブジェクトや関数
 
 # Array オブジェクト
