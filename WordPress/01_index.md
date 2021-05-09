@@ -116,7 +116,7 @@ Tag: テーマのタグ
 
 - WordPress 特有のメソッドなどを記述していく
 - `wp_title();`：タイトルを表示させる WordPress で用意されたメソッド、管理画面から変更出来るようにする
-- `wp_head();`：WordPress 管理画面などから設定した内容が反映される
+- `wp_head();`：WordPress 管理画面などから設定した内容が反映される。この関数を記述してないとプラグインなどが使えない場合があるので必ず記述しておく
 - `body_class();`：body タグの中に WordPress で使うクラス属性が入る
 - `get_stylesheet_uri();`：このテーマで使われている style.css を探して、そのパスを自動的に埋め込んでくれる
 - `bloginfo(' charset ');`：bloginfo()メソッドは WordPress で設定されている色々な情報を引き出すもの（ここでは文字コードを管理画面から指定できるようにしている）
@@ -149,7 +149,7 @@ Tag: テーマのタグ
 
 ## footer.php を切り出す
 
-- 今回は特に特別な指定なし
+- `wp_footer()`：記述していないとプラグインなどが使えない場合があるので、body タグの閉じタグの直前で記述しておく。
 
 ```html
     <!-- footer -->
@@ -157,6 +157,8 @@ Tag: テーマのタグ
       Copyright <a href="#">サンプルホームページ</a>. All Rights
       Reserved.
     </footer>
+    <!-- bodyタグの閉じタグの直前で読み込む -->
+    <php wp_footer();>
   </body>
 </html>
 ```
@@ -169,8 +171,6 @@ Tag: テーマのタグ
 ```php
 <?php get_footer(); ?>
 ```
-
-- 今回は`footer.php`に特有のメソッドなどは記述しない
 
 ## メニュー部分を作成する
 
@@ -353,15 +353,26 @@ Template Name: CONTACT～お問い合わせ～
 <?php get_footer(); ?>
 ```
 
+# トップページに関して
+
+- 今回はトップページを`home.php`としているが、トップページに使用するテンプレートファイルにも読み込み順序がある
+
+## トップページの読み込み順序
+
+1. `front-page.php`
+2. 固定ページ表示ルール：**設定** → **表示設定** → **フロントページの表示**が**固定ページ**に設定されている場合
+3. `home.php`
+4. `index.php`
+
 # 記事一覧ページ
 
 - `single.php`と`loop.php`と`category.php`を作成していく
 - 記事一覧ページのファイル名というのは決まっていて、`category.php`というファイルを作る
 
-## WordPress ファイルの読み込み順序
+## カテゴリー別記事一覧ページの読み込み順序
 
-1. `category-slug.php`：スラッグ名がついたファイルがあった場合最初に読み込まれる
-2. `category-id.php`：上記のファイルが無かった場合は、ID が付与されたファイルが読み込まれる
+1. `category-{slug}.php`：スラッグ名がついたファイルがあった場合最初に読み込まれる
+2. `category-{id}.php`：上記のファイルが無かった場合は、ID が付与されたファイルが読み込まれる
 3. `category.php`
 4. `archive.php`
 5. `index.php`
@@ -370,7 +381,14 @@ Template Name: CONTACT～お問い合わせ～
 - ID で指定すると投稿したページによって ID が変わってしまうので、`category-id.php`でファイルは作成しない
 - 同じデザインで良い場合は`category.php`で作成する
 
-### タグごとの一覧ページを作成した際の読み込み順序
+## 記事詳細ページ（個別投稿ページ）の読み込み順序
+
+1. `single-{post_type}.php`
+2. `single.php`
+3. `singular.php`
+4. `index.php`
+
+## タグごとの一覧ページを作成した際の読み込み順序
 
 1. `tag-slug.php`
 2. `tag-id.php`
@@ -378,18 +396,18 @@ Template Name: CONTACT～お問い合わせ～
 4. `archive.php`
 5. `index.php`
 
-### 日付ごとの一覧ページの読み込み順序
+## 日付ごとの一覧ページの読み込み順序
 
 1. `date.php`
 2. `archive.php`
 3. `index.php`
 
-### 検索ボックで検索してそのキーワードが入っている記事の一覧ページの読み込み順序
+## 検索ボックで検索してそのキーワードが入っている記事の一覧ページの読み込み順序
 
 1. `search.php`：このファイルが有った場合、このページのデザインで表示される
 2. `index.php`
 
-### まとめ
+## まとめ
 
 - 記事一覧はループをしてデータを取得し表示している
 - ループ部分だけを共通パーツとして`loop.php`とする場合が多い
@@ -398,7 +416,7 @@ Template Name: CONTACT～お問い合わせ～
 - それぞれ作りたい一覧ページによってファイル名を決める
 - どのページも同じデザインで良い場合は、`archive.php`や`search.php`を作っておけば良い
 
-## ファイルを切り出していく
+# ファイルを切り出していく
 
 - `the_permalink()`：記事へのリンク（パーマリンク）が表示される
 - `the_author_nickname()`：記事を投稿したユーザーを表示する
@@ -426,7 +444,7 @@ Template Name: CONTACT～お問い合わせ～
 <?php endif; // end if posts ?>
 ```
 
-# 記事ページ
+# 記事詳細ページ
 
 - 記事詳細ページは`single.php`ファイルが読み込まれる
 - コードの書き方は記事一覧ページの内容とほぼ同じ
@@ -989,3 +1007,42 @@ class my_widgets_item1 extends WP_Widget // ウィジェットクラスを継承
 - ツール → エクスポート → 全てのコンテンツ → チェックしてダウンロード
 - 適当に作ったフォルダへそのファイルを入れる
 - 作成したテーマを**zip ファイル**にして同じフォルダに入れる
+
+# その他関数
+
+## wp_body_open
+
+- body 要素の直後に何かを挿入する際に使用する関数。記述しておくと便利
+- body タグの開始タグの直後に記述する
+- `functions.php`などで挿入したいソースコードなどを指定できる
+
+```php
+// functions.php
+add_action('wp_body_open', function(){
+    // 挿入したいソースコードを記述
+});
+
+```
+
+## wp_enqueue_script
+
+- JavaScript ファイルの重複読み込みを回避し、適切なタイミングで読み込む
+- `wp_enqueue_script('jquery')`と記述することで jQuery を一度だけ読み込む
+- 自分で作った独自のファイルも読み込む事ができる
+
+```php
+// header.php
+
+// 記述例
+wp_enqueue_script('jquery');
+// 独自のJSファイル
+// 第一引数：任意の文字列（重複しないように設定）
+// 第二引数：jsファイルまでのパス
+wp_enqueue_script('my-js-name', get_template_directory_url() . '/assets/js/main.js');
+wp_head();
+</head>
+```
+
+## wp_enqueue_style
+
+- Font Awesome などの外部の css ファイルを読み込む
