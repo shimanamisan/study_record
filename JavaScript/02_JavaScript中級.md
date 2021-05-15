@@ -3814,6 +3814,11 @@ function patch(n1, n2) {}
 
 # その他オブジェクトや関数
 
+# Object.create(null)
+
+- **プロトタイプの継承をせずに、単なる入れ物としてのオブジェクトを作成する時に使用される**
+- `console.log`で確認しても`__proto__`から始まる継承されたメソッドがない事がわかる
+
 # Array オブジェクト
 
 - [オブジェクトが配列かどうかを判定する](https://jsprimer.net/basic/array/#detect-array)
