@@ -369,4 +369,18 @@ private void button9_Click(object sender, EventArgs e)
 
   Console.WriteLine("ラムダ式：" + string.Join(",", result4));
 }
+
+// 書き方例
+foreach (var list in pv_counter_total_lists.Select((n, ix) => new { item = n, index = ix }))
+{
+    if (list.index == 0)
+    {
+        _debug.ConsoleWR("トータルPV数：" + list.item);
+    }
+    else
+    {
+        _debug.ConsoleWR(list.index - 1 + "時のPV数：" + list.item);
+    }
+
+}
 ```
