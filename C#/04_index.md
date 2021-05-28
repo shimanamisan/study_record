@@ -23,6 +23,158 @@
 - Xaml 側で`Click="SaveButton_Click"`などと記述
 - コードビハインド側にイベントが自動生成される
 
+```c#
+// StackPanelその1
+<Grid>
+    <StackPanel> // デフォルトだと縦に並ぶ（HTMLのブロック要素のようなイメージ）
+        <Label Height="30"/>
+        <TextBox Height="30"/>
+        <TextBox Height="30"/>
+        <Button Height="30"/>
+
+        // 横向きに並べる際は、兄弟要素だと交わるので、入れ子にして一つのパネルの中に格納する
+        <StackPanel
+            Orientation="Horizontal" // 横向きに並ぶ
+            Height="100"
+            Margin="10"
+            >
+
+            <Label Height="30" Width="100"/>
+            <TextBox Height="30" Width="100"/>
+            <TextBox Height="30" Width="100"/>
+            <Button Height="30" Width="100"
+            />
+        </StackPanel>
+    </StackPanel>
+</Grid>
+
+// StackPanelその2
+<Grid>
+    <StackPanel VerticalAlignment="Center" // 画面の中央（縦）に配置する
+                HorizontalAlignment="Stretch" // 全体に引き伸ばす
+                Margin="10,20,30,40"> // 余白を指定する
+        <Label Content="文字が書ける"/>
+        <TextBox Text="0000"/>
+        <Button Content="ボタンです"/>
+    </StackPanel>
+</Grid>
+```
+
+# Grid
+
+- 行と列で構成した柔軟性のあるグリッド領域
+- Excel のセルみたいな感じでセル結合とかもできる
+- 行と列を指定して、そこに任意のコントロールも設置
+
+```c#
+<Grid>
+    <Grid.ColumnDefinitions> // 列の定義
+        <ColumnDefinition Width="*"/> // 必要な列に横幅を指定
+        <ColumnDefinition Width="*"/> // * は比率で幅を調整する（2*なら2倍）
+        <ColumnDefinition Width="*"/> // 全体で5列あれば5等分など
+        <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions> // 行の定義
+        <RowDefinition Height="2*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+
+    <Label Content="0"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom"
+            FontSize="60"
+            Grid.ColumnSpan="4"/> // nマス分結合する（ここでは4マス分結合される）
+
+    <Button Content="AC"
+            Margin="5"
+            Grid.Column="0" // セルの指定（どのセルに配置するのか）
+            Grid.Row="1"/>
+
+    <Button Content="+/-"
+            Margin="5"
+            Grid.Row="1"
+            Grid.Column="1"/>
+    <Button Content="%"
+            Margin="5"
+            Grid.Row="1"
+            Grid.Column="2"/>
+    <Button Content="/"
+            Margin="5"
+            Grid.Row="1"
+            Grid.Column="3"/>
+
+    <Button Content="7"
+            Margin="5"
+            Grid.Row="2"
+            Grid.Column="0"/>
+    <Button Content="8"
+            Margin="5"
+            Grid.Row="2"
+            Grid.Column="1"/>
+    <Button Content="9"
+            Margin="5"
+            Grid.Row="2"
+            Grid.Column="2"/>
+    <Button Content="*"
+            Margin="5"
+            Grid.Row="2"
+            Grid.Column="3"/>
+
+    <Button Content="4"
+            Margin="5"
+            Grid.Row="3"
+            Grid.Column="0"/>
+    <Button Content="5"
+            Margin="5"
+            Grid.Row="3"
+            Grid.Column="1"/>
+    <Button Content="6"
+            Margin="5"
+            Grid.Row="3"
+            Grid.Column="2"/>
+    <Button Content="-"
+            Margin="5"
+            Grid.Row="3"
+            Grid.Column="3"/>
+
+    <Button Content="1"
+            Margin="5"
+            Grid.Row="4"
+            Grid.Column="0"/>
+    <Button Content="2"
+            Margin="5"
+            Grid.Row="4"
+            Grid.Column="1"/>
+    <Button Content="3"
+            Margin="5"
+            Grid.Row="4"
+            Grid.Column="2"/>
+    <Button Content="+"
+            Margin="5"
+            Grid.Row="4"
+            Grid.Column="3"/>
+
+    <Button Content="0"
+            Margin="5"
+            Grid.Row="5"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"/>
+    <Button Content="."
+            Margin="5"
+            Grid.Row="5"
+            Grid.Column="2"/>
+    <Button Content="="
+            Margin="5"
+            Grid.Row="5"
+            Grid.Column="3"/>
+
+</Grid>
+```
+
 # StaticResource
 
 - リソース
@@ -1339,3 +1491,126 @@ public sealed class Dto
 
 # StatusBar
 
+- 画面の下に進捗状況を表示するコントロール
+- ProgressBar を置く
+- Separatpr
+
+```c#
+ <StatusBar VerticalAlignment="Bottom"> // 画面最下部に設置
+    <ProgressBar Width="60"
+                Height="20"
+                Value="60"
+                />
+    <Label Content="60%"/>
+    <Separator/> // セパレートを表示
+    <Label Content="処理しています..."/>
+</StatusBar>
+```
+
+# WrapPanel
+
+- 入り切らなくなったら折り返しながらコントロールを配置する
+- Orientation で横や縦に並べる
+- ItemHeight、ItemWidth で縦と横の幅を決めれる
+
+```c#
+<Grid>
+    <Grid.ColumnDefinitions>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+    </Grid.ColumnDefinitions>
+
+    <WrapPanel Orientation="Horizontal"
+                ItemHeight="80"
+                ItemWidth="80">
+        <Button Content="AAA" FontSize="20"/>
+        <Button Content="AAA" FontSize="20"/>
+        <Button Content="AAA" FontSize="20"/>
+        <Button Content="AAA" FontSize="20"/>
+        <Button Content="AAA" FontSize="20"/>
+        <Button Content="AAA" FontSize="20"/>
+    </WrapPanel>
+
+    <WrapPanel Grid.Column = "1"
+                Orientation="Vertical"
+                ItemHeight="80"
+                ItemWidth="80">
+        <Button Content="AAA" FontSize="20"/>
+        <Button Content="AAA" FontSize="20"/>
+        <Button Content="AAA" FontSize="20"/>
+        <Button Content="AAA" FontSize="20"/>
+        <Button Content="AAA" FontSize="20"/>
+    </WrapPanel>
+</Grid>
+```
+
+# DockPanel
+
+- 枠内の上下左右に整列して配置させる
+- DockPanel.Dock
+
+  - Top
+  - Left
+  - Right
+  - Botton
+
+- LastChildFill
+- 枠内の最後の要素が、残りのスペースを埋めるかどうか
+  - 既定値は`True`なので埋まる様になっている
+
+```c#
+<Grid>
+    <Grid.ColumnDefinitions>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+    </Grid.ColumnDefinitions>
+
+    <DockPanel LastChildFill="False">
+        <Button DockPanel.Dock="Top" Content="Top" FontSize="20"/>
+        <Button DockPanel.Dock="Left" Content="Left" FontSize="20"/>
+        <Button DockPanel.Dock="Right" Content="Right" FontSize="20"/>
+        <Button DockPanel.Dock="Bottom" Content="Bottom" FontSize="20"/>
+    </DockPanel>
+
+    <DockPanel Grid.Column="1" LastChildFill="True"> // LastChildFillで空白の部分を最終行に記述した要素で埋める
+        <Button DockPanel.Dock="Top" Content="Top" FontSize="20"/>
+        <Button DockPanel.Dock="Left" Content="Left" FontSize="20"/>
+        <Button DockPanel.Dock="Right" Content="Right" FontSize="20"/>
+        <Button DockPanel.Dock="Bottom" Content="Bottom" FontSize="20"/>
+    </DockPanel>
+</Grid>
+```
+
+# Canvas
+
+- 座標を指定してコントロールを並べる
+- 通常は Left と Top の座標を指定すれば良い
+- Right や Bottom を使って指定も可能
+- 重なる要素は`Panel.Zindex`で前面・背面を調整する
+
+```c#
+<Grid>
+    <Canvas>
+        <Rectangle  Canvas.Left="20"
+                    Canvas.Top="20"
+                    Width="100"
+                    Height="100"
+                    Fill="Red"
+                    Panel.ZIndex="0"/>
+        <Rectangle  Canvas.Left="20"
+                    Canvas.Bottom="30"
+                    Width="100"
+                    Height="100"
+                    Fill="Blue"
+                    Panel.ZIndex="2"/>
+        <Rectangle  Canvas.Right="100"
+                    Canvas.Bottom="100"
+                    Width="100"
+                    Height="100"
+                    Fill="Yellow"
+                    Panel.ZIndex="1"/>
+        <Button     Canvas.Left="40" Canvas.Top="40"
+                    Content="AAA" FontSize="20"/>
+    </Canvas>
+</Grid>
+```
