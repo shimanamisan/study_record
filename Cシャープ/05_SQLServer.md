@@ -234,3 +234,116 @@ private void InsertCommandButton_Click(object sender, EventArgs e)
     ProductSQLServer.Insert(entity);
 }
 ```
+
+## アプリケーション全体で例外を受ける
+
+- 今はテキストボックスが空の状態で Insert すると例外が発生する
+- `Program.cs`のクラス内で例外を受ける処理を実装する
+- 本当はバリデーションチェックを行う必要があるが、こういう方法もある
+
+```c#
+// Program.cs
+
+static class Program
+{
+    /// <summary>
+    /// アプリケーションのメイン エントリ ポイントです。
+    /// </summary>
+    [STAThread]
+    static void Main()
+    {
+        // まとめて一括して例外を受け取る
+        Application.ThreadException += Application_ThreadException; // 追加したコード
+
+        Application.EnableVisualStyles();
+        Application.SetCompatibleTextRenderingDefault(false);
+        Application.Run(new Form1());
+    }
+
+    // まとめて一括して例外を受け止めている
+    // 追加したコード
+    private static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
+    {
+        MessageBox.Show(e.Exception.Message);
+    }
+}
+```
+
+# SqlCommand で Update 文を発行する方法
+
+- 処理はほぼ Insert する時と同じ
+- Update するレコードがなかったら Insert も行う
+
+```c#
+// ProductSQLServer.cs
+public static void Update(ProductEntity products)
+{
+
+    string sql = @"update Product set ProductName=@ProductName, Price=@Price where ProductId=@ProductId";
+
+    using (var connection = new SqlConnection(_connectionString))
+    using (var command = new SqlCommand(sql, connection))
+    {
+        connection.Open();
+
+        // SQLの値を指定する
+        command.Parameters.AddWithValue("@ProductId", products.ProductId);
+        command.Parameters.AddWithValue("@ProductName", products.ProductName);
+        command.Parameters.AddWithValue("@Price", products.Price);
+
+        // Insertする場合はExecuteNonQueryでSQLコマンドのSQLが実行される
+        command.ExecuteNonQuery();
+
+        // ExecuteNonQueryの実行結果でUpdateされたレコードの件数が返ってくる
+        // それが0件だったらInsertする処理を追加
+        if (updateCount < 1)
+        {
+            Insert(products);
+        }
+    }
+}
+
+// Form.cs
+private void UpdateCommandButton_Click(object sender, EventArgs e)
+{
+    int productId = Convert.ToInt32(ProductIdTextBox.Text);
+    string productName = Convert.ToString(ProductNameTextBox.Text);
+    int price = Convert.ToInt32(PriceTextBox.Text);
+
+    var entity = new ProductEntity(productId, productName, price);
+    ProductSQLServer.Update(entity);
+}
+```
+
+# SqlCommand で Delete 文を発行する方法
+
+```c#
+// ProductSQLServer.cs
+public static void Delete(int producId)
+{
+
+    string sql = @"delete Product where ProductId=@ProductId";
+
+    using (var connection = new SqlConnection(_connectionString))
+    using (var command = new SqlCommand(sql, connection))
+    {
+        connection.Open();
+
+        // SQLの値を指定する
+        command.Parameters.AddWithValue("@ProductId", producId);
+    
+        // Insertする場合はExecuteNonQueryでSQLコマンドのSQLが実行される
+        command.ExecuteNonQuery();
+        // 何件削除したかメッセージなどで表示させたければcount変数を作って戻り値を受けてもよい
+    
+    }
+}
+
+// Form.cs
+private void DeleteCommandButton_Click(object sender, EventArgs e)
+{
+    int productId = Convert.ToInt32(ProductIdTextBox.Text);
+
+    ProductSQLServer.Delete(productId);
+}
+```
