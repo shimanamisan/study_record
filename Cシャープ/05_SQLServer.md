@@ -331,11 +331,11 @@ public static void Delete(int producId)
 
         // SQLの値を指定する
         command.Parameters.AddWithValue("@ProductId", producId);
-    
+
         // Insertする場合はExecuteNonQueryでSQLコマンドのSQLが実行される
         command.ExecuteNonQuery();
         // 何件削除したかメッセージなどで表示させたければcount変数を作って戻り値を受けてもよい
-    
+
     }
 }
 
@@ -345,5 +345,147 @@ private void DeleteCommandButton_Click(object sender, EventArgs e)
     int productId = Convert.ToInt32(ProductIdTextBox.Text);
 
     ProductSQLServer.Delete(productId);
+}
+```
+
+# Dapper でデータを取得する方法
+
+- 基本的にReaderを使ったやり方とほぼ同じ
+- SQLは書くけど、実行結果を取得する処理を自動でやってくれる
+- Readerでは実行結果を取得する処理も自分で実装するが、行数が多いと大変なのでその辺りを自動でやってくれるのがDapperという機能
+- ソリューションエクスプローラーの「参照」を右クリック → NuGetパッケージの管理 → Dapperと検索
+
+```c#
+// ProductSQLServer.cs
+using Dapper; // 追記する
+
+public static List<ProductEntity> GetDapper()
+{
+    // 改行が必要な場合は先頭に@マークをつける
+    var sql = @"select
+                ProductId,
+                ProductName,
+                Price from
+                Product";
+
+    using (var connection = new SqlConnection(_connectionString))
+    {
+        // SQLを実行してProductEntityの型にマッピングして値を返してくれる
+        // Queryメソッドに合わせてF12キーを押すとDapperクラスに飛べる
+        return connection.Query<ProductEntity>(sql).ToList();
+    }
+
+}
+
+// Form.cs
+private void DapperReadButton_Click(object sender, EventArgs e)
+{
+    dataGridView1.DataSource = ProductSQLServer.GetDapper();
+}
+```
+
+# DapperでInsertする方法
+
+- UpdateやDeleteも同じようなやり方で実装できる
+
+```c#
+// ProductSQLServer.cs
+
+public static void DapperInsert(ProductEntity products)
+{
+    string sql = @"insert into Product(ProductId,ProductName,Price) values(@ProductId,@ProductName,@Price)";
+
+    using (var connection = new SqlConnection(_connectionString))
+    {
+        connection.Execute(sql, new { products.ProductId, products.ProductName, products.Price });
+    }
+    
+// Form.cs
+private void DapperInsertButton_Click(object sender, EventArgs e)
+{
+    int productId = Convert.ToInt32(ProductIdTextBox.Text);
+    string productName = Convert.ToString(ProductNameTextBox.Text); 
+    int price = Convert.ToInt32(PriceTextBox.Text);
+
+    var entity = new ProductEntity(productId, productName, price);
+    ProductSQLServer.DapperInsert(entity);
+}
+```
+
+# EntityFrameworkでデータを取得する
+
+- EntityFrameworkをインストールする
+- SQLを書かなくてもC#の記述だけで実行することが出来る
+
+## EntityFrameworkをインストールする
+
+- NuGetパッケージ管理 → EntityFrameworkと検索してインストール
+- プロジェクト名を右クリック → 追加 → 新しいフォルダー → 今回は**Models**とする
+- Modelsフォルダを右クリック → 追加 → 新しい項目 → 左のメニューから「データ」を選択 → `ADO.NET Entity Data Model`を選択して追加 → 「データベースからCode First」を選択して次へ
+- 新しい接続 → データソースで「Microsoft SQL Server」を選択して続行 → サーバー名を指定（今回は `HOME-SERVER-01\SQLEXPRESS` を指定）
+- データベース名の選択または入力 → プルダウンから作成したDBを指定する（今回はMy_DB名前で作っている）
+- 接続名に名前をつけてApp.Configに保存 → 「DbContext」と名前をつける → 次へ
+- テーブルにチェックを入れる → 生成されたオブジェクトの名前を複数化または単数化する（リストを扱う変数を返してくれるが、データが1行の場合は単数形の変数名で返却して、複数行ある場合は複数形の変数名にしてデータを返してくれる） → 完了
+- 実行時、データ取得まで少し時間がかかる
+
+```c#
+// Form.cs
+
+using SQLServer_Lesson.Models;
+
+private void EFReadtButton_Click(object sender, EventArgs e)
+{
+    // EntityFrameworkで自動的に生成されたリストを使用する
+    var source = new List<Product>();
+
+    // 接続はApp.Configにつながる
+    // connectionString="接続先"となっているので接続先を変更したければここを変更する
+    using (var db = new Model1())
+    {
+        source.AddRange(db.Products);
+    }
+
+    dataGridView1.DataSource = source;
+}
+```
+
+# EntityFrameworkでInsertする
+
+```c#
+// Form.cs
+private void EFInsertButton_Click(object sender, EventArgs e)
+{
+    // EntityFrameworkで自動生成されたクラスに格納する
+    Product p = new Product();
+
+    p.ProductId = Convert.ToInt32(ProductIdTextBox.Text);
+    p.ProductName = Convert.ToString(ProductNameTextBox.Text);
+    p.Price = Convert.ToInt32(PriceTextBox.Text);
+
+    using (var db = new Model1())
+    {
+        db.Products.Add(p);
+        // データベースに保存するときは必ず実行する
+        db.SaveChanges();
+    }
+}
+```
+
+# EntityFrameworkでUpdateする
+
+```c#
+// Form.cs
+
+private void EFUpdateButton_Click(object sender, EventArgs e)
+{
+    using (var db = new Model1())
+    {
+        // IDをキーにしてデータを取得する
+        var p = db.Products.Find(Convert.ToInt32(ProductIdTextBox.Text));
+
+        p.ProductName = ProductNameTextBox.Text;
+        p.Price = Convert.ToInt32(PriceTextBox.Text);
+        db.SaveChanges();
+    }
 }
 ```
