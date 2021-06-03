@@ -473,6 +473,8 @@ private void EFInsertButton_Click(object sender, EventArgs e)
 
 # EntityFrameworkでUpdateする
 
+- テクストボックスに入力されたIDを元にデータを検索してアップデートする
+
 ```c#
 // Form.cs
 
@@ -489,3 +491,29 @@ private void EFUpdateButton_Click(object sender, EventArgs e)
     }
 }
 ```
+
+# EntityFrameworkでDeleteする
+
+- 行っていることはUpdateの時と同じ
+
+```c#
+private void EFDeleteButton_Click(object sender, EventArgs e)
+{
+    using (var db = new Model1())
+    {
+        // Updateと同様、IDからレコードを取得する処理を記述する
+        var p = db.Products.Find(Convert.ToInt32(ProductIdTextBox.Text));
+        db.Products.Remove(p);
+        db.SaveChanges();
+    }
+}
+```
+
+# Helperクラスを作ってSqlCommand操作を共通化する
+
+- ProductSQLServerクラスに書かれている、データベースへの接続処理などは共通化することが出来る
+
+```c#
+```
+
+# 大量データの作成
