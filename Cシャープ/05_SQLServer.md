@@ -512,8 +512,287 @@ private void EFDeleteButton_Click(object sender, EventArgs e)
 # Helperクラスを作ってSqlCommand操作を共通化する
 
 - ProductSQLServerクラスに書かれている、データベースへの接続処理などは共通化することが出来る
+- SqlServerHelperクラスを作成
 
 ```c#
+// SqlServerHelper.cs
+
+class SqlServerHelper
+{
+    // リファクタリングによりProductSQLServerクラスより移動
+    internal static string ConnectionString { get; }
+
+    static SqlServerHelper()
+    {
+        // リファクタリングによりProductSQLServerクラスより移動
+        var builder = new SqlConnectionStringBuilder();
+        builder.DataSource = @"HOME-SERVER-01\SQLEXPRESS"; // バックスラッシュがある場合は文字列の先頭に@をつける
+        builder.InitialCatalog = "My_DB"; // DB名
+        builder.IntegratedSecurity = true; // Windows認証の場合
+        ConnectionString = builder.ToString();
+    }
+
+    // リファクタリングによりProductSQLServerクラスより移動
+    public static DataTable GetDataTable(string sql)
+    {
+        DataTable dt = new DataTable();
+
+        // Disposeが呼び出せる処理はusingを使用してエラー時には接続が閉じるようにする
+        // 処理の閉じ忘れを防止して、メモリーの消費を防ぐため
+        using (var connection = new SqlConnection(ConnectionString))
+        using (var adapter = new SqlDataAdapter(sql, connection)) // SQLと接続情報を渡す
+        {
+            connection.Open();
+            // SQLが発行されてDataTableに結果が入る
+            adapter.Fill(dt);
+        }
+
+        return dt;
+    }
+
+    // リファクタリングによりProductSQLServerクラスより移動
+    // 値を返すのではなくActionを使ってSqlDataReaderを通知するだけにする
+    public static void Query(string sql, Action<SqlDataReader> action)
+    {
+
+        var result = new List<ProductEntity>();
+        using (var connection = new SqlConnection(ConnectionString))
+        using (var command = new SqlCommand(sql, connection))
+        {
+            // データベースに接続してSELECT文の実行結果を1行ずつ返す
+            connection.Open();
+            using (var reader = command.ExecuteReader())
+            {
+                // 1行ずつ結果を返す、結果がなくなれば処理をfalseを返す
+                // 取得したデータは維持されないので変数に格納しないと消えて無くなる
+                while (reader.Read())
+                {
+                    // reader[0] クエリの実行で取得したデータは項目を追加したときにバグが発生するので
+                    // インデックスではなく、カラムの名前で取得する
+                    // 値はObject型で返ってくるので、必ずデータベースの型と合わせてConvertする
+                    // SQLServerのintとC＃のintはどちらも32ビット
+                    // SQLServerでBigintだったらC＃ではlongでConvertする
+                    // 整数はビット数に気を付ける
+
+                    // SqlDataReaderで取得したものを通知する
+                    action(reader);
+                }
+
+                // SQLServer real →     C# float ToSingle()
+                // SQLServer float →    C# double ToDouble()
+                // SQLServer bigint →   C# long ToInt64()
+                // SQLServer int →      C# long ToInt32()
+                // SQLServer smallint → C# long ToInt16()
+                // SQLServer tinyint →  C# long ToByte()
+                // SQLServer varchar →  C# string ToString()
+
+            }
+        }
+    }
+
+    public static int Execute(string sql, List<SqlParameter> sqlParameters)
+    {
+        
+        using (var connection = new SqlConnection(ConnectionString))
+        using (var command = new SqlCommand(sql, connection))
+        {
+            connection.Open();
+
+            if (sqlParameters != null)
+            {
+                // Listになっているので、配列に直してAddする必要がある
+                command.Parameters.AddRange(sqlParameters.ToArray());
+            }
+
+            // Insertする場合はExecuteNonQueryでSQLコマンドのSQLが実行される
+            return command.ExecuteNonQuery();
+        }
+    }
+}
+```
+
+## 呼び出す側も修正
+
+- データベースへの接続処理は共通なので全て`SqlServerHelperクラス`へ移動
+
+```c#
+public static class ProductSQLServer
+{
+
+    // private static string _connectionString;
+
+    // このクラスにアクセスしようとしたときに最初に動作するコンストラクタを作成
+    static ProductSQLServer()
+    {
+        // リファクタリングによりProductSQLServerクラスへ移動
+
+        //var builder = new SqlConnectionStringBuilder();
+        //builder.DataSource = @"HOME-SERVER-01\SQLEXPRESS"; // バックスラッシュがある場合は文字列の先頭に@をつける
+        //builder.InitialCatalog = "My_DB"; // DB名
+        //builder.IntegratedSecurity = true; // Windows認証の場合
+        //_connectionString = builder.ToString();
+    }
+
+    public static DataTable GetDataTable()
+    {
+        var sql = @"select * from Product";
+
+        return SqlServerHelper.GetDataTable(sql);
+
+    }
+
+    // Readerの処理
+    public static List<ProductEntity> GetDataReader()
+    {
+        // 改行が必要な場合は先頭に@マークをつける
+        var sql = @"select
+                    ProductId,
+                    ProductName,
+                    Price from
+                    Product";
+
+        var result = new List<ProductEntity>();
+
+        SqlServerHelper.Query(sql, reader =>
+        {
+            // SqlServerHelperの方でループ処理が実行されているときに
+            // ここの処理が呼ばれて1行ずつリストに追加される
+            result.Add(new ProductEntity(
+                    Convert.ToInt32(reader["ProductId"]),
+                    Convert.ToString(reader["ProductName"]),
+                    Convert.ToInt32(reader["Price"])
+                    ));
+
+        });
+
+        return result;
+    }
+
+    public static void Insert(ProductEntity products)
+    {
+        string sql = @"insert into Product(ProductId,ProductName,Price) values(@ProductId,@ProductName,@Price)";
+
+        var p = new List<SqlParameter>();
+
+        p.Add(new SqlParameter("@ProductId", products.ProductId));
+        p.Add(new SqlParameter("@ProductName", products.ProductName));
+        p.Add(new SqlParameter("@Price", products.Price));
+        SqlServerHelper.Execute(sql, p);
+        
+    }
+
+    public static void Update(ProductEntity products)
+    {
+
+        string sql = @"update Product set ProductName=@ProductName, Price=@Price where ProductId=@ProductId";
+
+        var p = new List<SqlParameter>();
+        p.Add(new SqlParameter("@ProductId", products.ProductId));
+        p.Add(new SqlParameter("@ProductName", products.ProductName));
+        p.Add(new SqlParameter("@Price", products.Price));
+        var update_count = SqlServerHelper.Execute(sql, p);
+        
+        if (update_count < 1)
+        {
+            Insert(products);
+        }
+
+    }
+
+    public static void Delete(int producId)
+    {
+
+        string sql = @"delete Product where ProductId=@ProductId";
+
+        var p = new List<SqlParameter>();
+        p.Add(new SqlParameter("@ProductId", producId));
+        SqlServerHelper.Execute(sql, p);
+    }
+
+    // GetDapper
+    public static List<ProductEntity> GetDapper()
+    {
+        // 改行が必要な場合は先頭に@マークをつける
+        var sql = @"select
+                    ProductId,
+                    ProductName,
+                    Price from
+                    Product";
+
+        using (var connection = new SqlConnection(SqlServerHelper.ConnectionString))
+        {
+            // SQLを実行してProductEntityの型にマッピングして値を返してくれる
+            // Queryメソッドに合わせてF12キーを押すとDapperクラスに飛べる
+            return connection.Query<ProductEntity>(sql).ToList();
+        }
+
+    }
+
+    // DapperInsert
+    public static void DapperInsert(ProductEntity products)
+    {
+        string sql = @"insert into Product(ProductId,ProductName,Price) values(@ProductId,@ProductName,@Price)";
+
+        using (var connection = new SqlConnection(SqlServerHelper.ConnectionString))
+        {
+            connection.Execute(sql, new { products.ProductId, products.ProductName, products.Price });
+        }
+    }
+
+    // DapperUpdate
+    public static void DapperUpdate(ProductEntity products)
+    {
+        string sql = @"update Product set ProductName=@ProductName, Price=@Price where ProductId=@ProductId";
+
+        using (var connection = new SqlConnection(SqlServerHelper.ConnectionString))
+        {
+            connection.Execute(sql, new { products.ProductId, products.ProductName, products.Price } );
+        }
+    }
+
+    // DapperDelete
+    public static void DapperDelete(int productId)
+    {
+        string sql = @"delete Product where ProductId=@ProductId";
+
+        using (var connection = new SqlConnection(SqlServerHelper.ConnectionString))
+        {
+            connection.Execute(sql, new { productId });
+        }
+    }
+
+}
 ```
 
 # 大量データの作成
+
+- 今まで作成してきた処理のパフォーマンスがどのように違うのか見ていく
+
+```c#
+// Form.cs
+
+private void InsertDataButton_Click(object sender, EventArgs e)
+{
+    for (int i = 10; i <= 50000; i++)
+    {
+        ProductSQLServer.Insert(new ProductEntity(i, "product:" + i, i * 10));
+    }
+
+    MessageBox.Show("完了しました");
+}
+```
+
+## 速度の調べ方
+
+- C#のストップウォッチ機能を使う
+
+```c#
+// ストップウォッチ機能を使って処理の速度を計測する
+System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+sw.Start();
+// 処理
+sw.Stop();
+// 何ミリ秒かかったか文字列に戻して出力する
+this.Text = sw.ElapsedMilliseconds.ToString();
+```
+
