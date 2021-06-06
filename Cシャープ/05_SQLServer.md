@@ -1,5 +1,3 @@
-###### tags: `C#`
-
 # SQLServer と C# をつなぐ
 
 # SQLServer のインストール
@@ -27,7 +25,7 @@ select * from Product
 - `using`に追加するには、`ctrl + .`で一覧を表示して Enter キーで追加出来る
 - SqlDataAdapter の`Fillメソッド`は、全てのデータが取得されるまで結果を返さず待機している
 
-```c#
+```csharp
 using System.Data.SqlClient; // 追加するクラス
 
 private void DatabaseRead(object sender, EventArgs e)
@@ -67,7 +65,7 @@ private void DatabaseRead(object sender, EventArgs e)
 - プロジェクト名を右クリック → 追加 → 新しいフォルダー
 - 作成したフォルダーを右クリック → 追加 → 新しい項目 → クラスを選択して`ProductSQLServer`というクラスを作成
 
-```c#
+```csharp
 // ProductSQLServer.cs
 
 public static class ProductSQLServer
@@ -119,7 +117,7 @@ private void DatabaseRead(object sender, EventArgs e)
 
 - `ProductEntity`クラスを作成する
 
-```c#
+```csharp
 // ProductEntity.cs
 // 継承しないクラスにはsealedをつけたほうが良い
 public sealed class ProductEntity
@@ -204,7 +202,7 @@ private void ReaderRead(object sender, EventArgs e)
 
 # SqlCommand で Insert 文を発行する方法
 
-```c#
+```csharp
 // ProductSQLServer.cs
 public static void Insert(ProductEntity products)
 {
@@ -243,7 +241,7 @@ private void InsertCommandButton_Click(object sender, EventArgs e)
 - `Program.cs`のクラス内で例外を受ける処理を実装する
 - 本当はバリデーションチェックを行う必要があるが、こういう方法もある
 
-```c#
+```csharp
 // Program.cs
 
 static class Program
@@ -276,7 +274,7 @@ static class Program
 - 処理はほぼ Insert する時と同じ
 - Update するレコードがなかったら Insert も行う
 
-```c#
+```csharp
 // ProductSQLServer.cs
 public static void Update(ProductEntity products)
 {
@@ -319,7 +317,7 @@ private void UpdateCommandButton_Click(object sender, EventArgs e)
 
 # SqlCommand で Delete 文を発行する方法
 
-```c#
+```csharp
 // ProductSQLServer.cs
 public static void Delete(int producId)
 {
@@ -357,7 +355,7 @@ private void DeleteCommandButton_Click(object sender, EventArgs e)
 - Readerでは実行結果を取得する処理も自分で実装するが、行数が多いと大変なのでその辺りを自動でやってくれるのがDapperという機能
 - ソリューションエクスプローラーの「参照」を右クリック → NuGetパッケージの管理 → Dapperと検索
 
-```c#
+```csharp
 // ProductSQLServer.cs
 using Dapper; // 追記する
 
@@ -390,7 +388,7 @@ private void DapperReadButton_Click(object sender, EventArgs e)
 
 - UpdateやDeleteも同じようなやり方で実装できる
 
-```c#
+```csharp
 // ProductSQLServer.cs
 
 public static void DapperInsert(ProductEntity products)
@@ -430,7 +428,7 @@ private void DapperInsertButton_Click(object sender, EventArgs e)
 - テーブルにチェックを入れる → 生成されたオブジェクトの名前を複数化または単数化する（リストを扱う変数を返してくれるが、データが1行の場合は単数形の変数名で返却して、複数行ある場合は複数形の変数名にしてデータを返してくれる） → 完了
 - 実行時、データ取得まで少し時間がかかる
 
-```c#
+```csharp
 // Form.cs
 
 using SQLServer_Lesson.Models;
@@ -477,7 +475,7 @@ private void EFInsertButton_Click(object sender, EventArgs e)
 
 - テクストボックスに入力されたIDを元にデータを検索してアップデートする
 
-```c#
+```csharp
 // Form.cs
 
 private void EFUpdateButton_Click(object sender, EventArgs e)
@@ -498,7 +496,7 @@ private void EFUpdateButton_Click(object sender, EventArgs e)
 
 - 行っていることはUpdateの時と同じ
 
-```c#
+```csharp
 private void EFDeleteButton_Click(object sender, EventArgs e)
 {
     using (var db = new Model1())
@@ -516,7 +514,7 @@ private void EFDeleteButton_Click(object sender, EventArgs e)
 - ProductSQLServerクラスに書かれている、データベースへの接続処理などは共通化することが出来る
 - SqlServerHelperクラスを作成
 
-```c#
+```csharp
 // SqlServerHelper.cs
 
 class SqlServerHelper
@@ -617,7 +615,7 @@ class SqlServerHelper
 
 - データベースへの接続処理は共通なので全て`SqlServerHelperクラス`へ移動
 
-```c#
+```csharp
 public static class ProductSQLServer
 {
 
@@ -770,7 +768,7 @@ public static class ProductSQLServer
 
 - 今まで作成してきた処理のパフォーマンスがどのように違うのか見ていく
 
-```c#
+```csharp
 // Form.cs
 
 private void InsertDataButton_Click(object sender, EventArgs e)
@@ -790,7 +788,7 @@ private void InsertDataButton_Click(object sender, EventArgs e)
 - `Dapper`と`SqlDataReader`は速度は早くメモリ使用量も少ない
 - `EntityFramerork`は一番遅い
 
-```c#
+```csharp
 // ストップウォッチ機能を使って処理の速度を計測する
 System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
 sw.Start();
