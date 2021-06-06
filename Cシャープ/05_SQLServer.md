@@ -785,6 +785,8 @@ private void InsertDataButton_Click(object sender, EventArgs e)
 ## 速度の調べ方
 
 - C#のストップウォッチ機能を使う
+- `Dapper`と`SqlDataReader`は速度は早くメモリ使用量も少ない
+- `EntityFramerork`は一番遅い
 
 ```c#
 // ストップウォッチ機能を使って処理の速度を計測する
@@ -795,4 +797,3 @@ sw.Stop();
 // 何ミリ秒かかったか文字列に戻して出力する
 this.Text = sw.ElapsedMilliseconds.ToString();
 ```
-
